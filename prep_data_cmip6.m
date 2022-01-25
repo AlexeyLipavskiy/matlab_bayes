@@ -7,13 +7,39 @@ set(0,'DefaultTextFontSize',14,'DefaultTextFontName','Times New Roman');
 
 global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop
 %% User parameters
-years = 2016:2100;
+years = 2015:2100;
+river_name = 'amur';
 
-exel_river_name = 'lena';
-% exel_river_name = 'amur';
-% exel_river_name = 'ural';
+variable_name = 'pr';
+path_to_folder = '../CMIP_6/ssp126/';
 
-basin_number = 252;
+exel_list_name = 'list.xls';
+
+save = false;
+%% constants
+sec_in_day = 60*60*24;
+days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
+%%
+switch river_name
+    case 'amur'
+        basin_number = 23;
+    case 'ob'
+        basin_number = 253;
+    case 'lena'
+        basin_number = 252;       
+    case 'yenisey'
+        basin_number = 3;
+    case 'sev_dvina'
+        basin_number = 11;
+    case 'volga'
+        basin_number = 16;
+    case 'ural'
+        basin_number = 30;
+    otherwise
+        ME = MException('MyComponent:noSuchVariable', 'river name error!');
+        throw(ME)
+end
+% basin_number = 23;
 % sev dvina 11
 % volga 16
 % amur 23
@@ -21,14 +47,9 @@ basin_number = 252;
 % 'Yenisey' 3
 % Lena 252
 % Ob 253
-
-exel_list_name = 'list.xls';
-%% constants
-sec_in_day = 60*60*24;
-days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 %% Mask
 
-if string(exel_river_name) == "selenga"
+if string(river_name) == "selenga"
      path_mask = '../r_Selenga.cno';
     selenga_mask = dlmread(path_mask);
     river_mask = selenga_mask;
@@ -41,12 +62,12 @@ else
 
     river_mask(end-1:end,:) = [];
 end
-
+%% test part
 % figure;
 % geoplot(river_mask(:,2),river_mask(:,1),'.');
 % geobasemap colorterrain
 
-%% test part
+
 % figure;
 % plot(selenga_mask(:,1),selenga_mask(:,2),'.'); % -> 46 : 53.5 lat  
 % grid on;                                        %   96.5 : 113.5 long
@@ -87,7 +108,7 @@ end
 mesh_b_x = mesh_b_x_start : mesh_step : mesh_b_x_stop;
 mesh_b_y = mesh_b_y_start : mesh_step : mesh_b_y_stop;
 
-f_k = zeros(numel(mesh_b_y)-1,numel(mesh_b_x)-1);
+% f_k = zeros(numel(mesh_b_y)-1,numel(mesh_b_x)-1);
 parall_degree = pi/180*6377020*cos(deg2rad(mesh_b_y));
 %% Counting f_k
 
@@ -144,18 +165,7 @@ clear mesh_mask_intersect mesh_pgon selenga_pgon
 
 %% CMIP_6
 
-    
-% посмотреть данные за декабрь 2020 в гпсп2.3
-
-%% test part
-% [hist_pr_years,hist_pr,er] = calculate_cmip6('..\CMIP_6\ssp585\EC-Earth3\','mrros');
-% hist_pr = hist_pr/mask_square;
-% % [hist_mrro_years,hist_mrro] = calculate_cmip6('..\CMIP_6\historical\AWI-CM-1-1-MR\','mrro');
-% % [hist_mrros_years,hist_mrros] = calculate_cmip6('..\CMIP_6\historical\AWI-CM-1-1-MR\','mrros');
-% figure;
-% plot(hist_pr_years,hist_pr);
-% disp(er);
-%% read xls list
+%% read xls list with model names
 
 list_tmp_file = readcell(exel_list_name);
 list_tmp_file = list_tmp_file(3:end,:);
@@ -172,199 +182,181 @@ list_ssp245_marks = list_tmp_file(:,8);
 list_ssp585_models = list_tmp_file(:,10);
 list_ssp585_marks = list_tmp_file(:,11);
 
-% list_of_models_126 = mat2cell('Observed data',1);
-% list_of_models_245 = mat2cell('Observed data',1);
-% list_of_models_585 = mat2cell('Observed data',1);
-%%
+%% preallocation
+% var_126 = zeros();
 
-%% 
-% R_126(1,:) = selenga_xls_r'*1000;
-% Rs_126(1,:) = R_126(1,:);
-% P_126(1,:) = gpcp_p_year_sum;
-% 
-% R_245(1,:) = selenga_xls_r'*1000;
-% Rs_245(1,:) = R_245(1,:);
-% P_245(1,:) = gpcp_p_year_sum;
-% 
-% R_585(1,:) = selenga_xls_r'*1000;
-% Rs_585(1,:) = R_245(1,:);
-% P_585(1,:) = gpcp_p_year_sum;
 
 %% SSP_126
+
+
+
+
 intern_count = 0;
 for count_list_126 = 1:size(list_tmp_file,1)
     if string(list_ssp126_marks(count_list_126)) == '+'
         intern_count = intern_count + 1
         
-        [ssp126_pr_years,ssp126_pr,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp126/',char(list_ssp126_models(count_list_126))),'pr');
-        if err_s == 1
-            P_126(intern_count,:) = NaN;        
-            err_s
-        else
-            P_126(intern_count,:) = fix_years(ssp126_pr_years,ssp126_pr)/mask_square;
-        end
-     
-        [ssp126_mrro_years,ssp126_mrro,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp126/',char(list_ssp126_models(count_list_126))),'mrro');
-        if  err_s == 1
-            R_126(intern_count,:) = NaN;        
-            err_s
-        else
-            R_126(intern_count,:) = fix_years(ssp126_mrro_years,ssp126_mrro)/1e12;  
-        end
-    
-        [ssp126_mrros_years,ssp126_mrros,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp126/',char(list_ssp126_models(count_list_126))),'mrros');
-        if  err_s == 1
-            Rs_126(intern_count,:) = NaN;
-            err_s
-        else       
-            Rs_126(intern_count,:) = fix_years(ssp126_mrros_years,ssp126_mrros)/1e12;         
-        end
+        var_126(intern_count,:) = calculate_cmip6(fullfile(path_to_folder,char(list_ssp126_models(count_list_126))),variable_name);
+%         if err_s == 1
+%             P_126(intern_count,:) = NaN;        
+%             err_s
+%         else
+%             P_126(intern_count,:) = fix_years(years_126,var_126)/mask_square;
+%         end
+        
         
         list_of_models_126(intern_count) = list_ssp126_models(count_list_126);
     end
 end
-figure;
-plot(years,R_126);
 
-%% SSP_245
-intern_count = 0;
-for count_list_245 = 1:size(list_tmp_file,1)
-    if string(list_ssp245_marks(count_list_245)) == '+'
-        intern_count = intern_count + 1
-        
-        [ssp245_pr_years,ssp245_pr,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),'pr');
-        if err_s == 1
-            P_245(intern_count,:) = NaN;        
-            err_s
-        else
-            P_245(intern_count,:) = fix_years(ssp245_pr_years,ssp245_pr)/mask_square;
-        end
-     
-        [ssp245_mrro_years,ssp245_mrro,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),'mrro');
-        if  err_s == 1
-            R_245(intern_count,:) = NaN;        
-            err_s
-        else
-            R_245(intern_count,:) = fix_years(ssp245_mrro_years,ssp245_mrro)/1e12;  
-        end
+%%
+year_ind = 1;
+var_year_tmp = 0;
+month_count = 1;
+for i = 1: size(var_126,2)
     
-        [ssp245_mrros_years,ssp245_mrros,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),'mrros');
-        if  err_s == 1
-            Rs_245(intern_count,:) = NaN;
-            err_s
-        else       
-            Rs_245(intern_count,:) = fix_years(ssp245_mrros_years,ssp245_mrros)/1e12;         
-        end
-        
-        list_of_models_245(intern_count) = list_ssp245_models(count_list_245);
-    end
+            var_year_tmp = var_year_tmp + var_126(6, i);                                                              % summ of flow for a year
+            if mod(month_count,12) == 0                                                                               % when year is full:
+                output2(year_ind) = var_year_tmp;                                                                      % get result
+                var_year_tmp = 0;
+                year_ind = year_ind +1;
+%                 month_ind = 1;
+            end 
+            month_count = month_count +1;
 end
-figure;
-plot(years,R_245);
-
-
-
-%% SSP_585
-
-intern_count = 0;
-for count_list_585 = 1:size(list_tmp_file,1)
-    if string(list_ssp585_marks(count_list_585)) == '+'
-        intern_count = intern_count + 1
-        
-        [ssp585_pr_years,ssp585_pr,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp585/',char(list_ssp585_models(count_list_585))),'pr');
-        if err_s == 1
-            P_585(intern_count,:) = NaN;        
-            err_s
-        else
-            P_585(intern_count,:) = fix_years(ssp585_pr_years,ssp585_pr)/mask_square;
-        end
-     
-        [ssp585_mrro_years,ssp585_mrro,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp585/',char(list_ssp585_models(count_list_585))),'mrro');
-        if  err_s == 1
-            R_585(intern_count,:) = NaN;        
-            err_s
-        else
-            R_585(intern_count,:) = fix_years(ssp585_mrro_years,ssp585_mrro)/1e12;  
-        end
-    
-        [ssp585_mrros_years,ssp585_mrros,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp585/',char(list_ssp585_models(count_list_585))),'mrros');
-        if  err_s == 1
-            Rs_585(intern_count,:) = NaN;
-            err_s
-        else       
-            Rs_585(intern_count,:) = fix_years(ssp585_mrros_years,ssp585_mrros)/1e12;         
-        end
-        
-        list_of_models_585(intern_count) = list_ssp585_models(count_list_585);
-    end
-end
-figure;
-plot(years,R_585);
-
-
+z = 2015:2100;
+plot(z, output2)
 %%
 
 
 
-years_21 = years;
-P_126_21 = P_126;
-R_126_21 = R_126;
-Rs_126_21 = Rs_126;
-P_245_21 = P_245;
-R_245_21 = R_245;
-Rs_245_21 = Rs_245;
-P_585_21 = P_585;
-R_585_21 = R_585;
-Rs_585_21 = Rs_585;
 
-% P_126_21(2,:)=[];
-% R_126_21(2,:)=[];
-% Rs_126_21(2,:)=[];
-% list_of_models_126(2)=[];
+
+
+% figure;
+% plot(years,R_126);
+
+% %% SSP_245
+% intern_count = 0;
+% for count_list_245 = 1:size(list_tmp_file,1)
+%     if string(list_ssp245_marks(count_list_245)) == '+'
+%         intern_count = intern_count + 1
+%         
+%         [ssp245_pr_years,ssp245_pr,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),variable_name);
+%         if err_s == 1
+%             P_245(intern_count,:) = NaN;        
+%             err_s
+%         else
+%             P_245(intern_count,:) = fix_years(ssp245_pr_years,ssp245_pr)/mask_square;
+%         end
+%      
+% %         [ssp245_mrro_years,ssp245_mrro,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),'mrro');
+% %         if  err_s == 1
+% %             R_245(intern_count,:) = NaN;        
+% %             err_s
+% %         else
+% %             R_245(intern_count,:) = fix_years(ssp245_mrro_years,ssp245_mrro)/1e12;  
+% %         end
+% %     
+% %         [ssp245_mrros_years,ssp245_mrros,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp245/',char(list_ssp245_models(count_list_245))),'mrros');
+% %         if  err_s == 1
+% %             Rs_245(intern_count,:) = NaN;
+% %             err_s
+% %         else       
+% %             Rs_245(intern_count,:) = fix_years(ssp245_mrros_years,ssp245_mrros)/1e12;         
+% %         end
+%         
+%         list_of_models_245(intern_count) = list_ssp245_models(count_list_245);
+%     end
+% end
+% figure;
+% plot(years,R_245);
 % 
-% P_245_21(4,:) = P_245(4,:).*1000;% some strange things
-% P_585_21(5,:) = P_585(5,:).*1000;
+% 
+% 
+% %% SSP_585
+% 
+% intern_count = 0;
+% for count_list_585 = 1:size(list_tmp_file,1)
+%     if string(list_ssp585_marks(count_list_585)) == '+'
+%         intern_count = intern_count + 1
+%         
+%         [ssp585_pr_years,ssp585_pr,err_s] = calculate_cmip6(fullfile('../CMIP_6/ssp585/',char(list_ssp585_models(count_list_585))),variable_name);
+%         if err_s == 1
+%             P_585(intern_count,:) = NaN;        
+%             err_s
+%         else
+%             P_585(intern_count,:) = fix_years(ssp585_pr_years,ssp585_pr)/mask_square;
+%         end
+%         
+%         list_of_models_585(intern_count) = list_ssp585_models(count_list_585);
+%     end
+% end
+% figure;
+% plot(years,R_585);
+
+
 %%
-% save('ssp_lena_29.10.21.mat','years_21','P_126_21','R_126_21','Rs_126_21'...
-% ,'list_of_models_126','P_245_21','R_245_21','Rs_245_21','list_of_models_245','P_585_21','R_585_21','Rs_585_21','list_of_models_585');
 
+
+
+% years_21 = years;
+% P_126_21 = P_126;
+% R_126_21 = R_126;
+% Rs_126_21 = Rs_126;
+% P_245_21 = P_245;
+% R_245_21 = R_245;
+% Rs_245_21 = Rs_245;
+% P_585_21 = P_585;
+% R_585_21 = R_585;
+% Rs_585_21 = Rs_585;
 
 
 %%
-function [var_years,output,error_flag] = calculate_cmip6(path,var)
+if save == true
+    save(variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_21','P_126_21','R_126_21','Rs_126_21'...
+    ,'list_of_models_126','P_245_21','R_245_21','Rs_245_21','list_of_models_245','P_585_21','R_585_21','Rs_585_21','list_of_models_585');
+end
+
+
+%%
+function [output] = calculate_cmip6(path,var)
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует
 % из них те, которые с нужной переменной и подходят по годам (заданным в
 % начале скрипта в глобалах). Далее работает с каждым файлом - расчитывает
 % средние годовые значения и склеивает их по всем доступным файлам в папке.
 % global days_a_month years sec_in_day f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh
-global years
+global years mask_square
+years = 2015:2100;
 
 % length_of_var = numel(var);
 % list_of_files_tmp = ls(path);
 list_of_files_tmp = dir(path);
-count_pre = 0; % counter for suitable files in the folder
+count_of_files = 0; % counter for suitable files in the folder
 disp(path);% to check in command window
-var_year_tmp = 0; % temporary year summ
-year_ind = 1;
-month_ind = 1;
+% var_year_tmp = 0; % temporary year summ
+% year_ind = 1;
+month_ind_for_calc_days = 1;
+month_total_ind = 1;
+for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'empty' values in the begining
 
-for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 empty values in the begining
-%     file_name_split = strsplit(list_of_files_tmp(iterator_pre,:),'_');% split name for blocks 
     file_name_split = strsplit(list_of_files_tmp(iterator_pre).name,'_');% split name for blocks
     file_var = string(file_name_split(1));
     file_years = char(file_name_split(7));
     file_year_start = str2double(file_years(1:4));
     file_year_end = str2double(file_years(8:11));
+    
     if file_var == var && file_year_end >= years(1) && file_year_start <= years(end)%find files with matching variable and years
-        count_pre = count_pre + 1;
+
+        count_of_files = count_of_files + 1;
 %         disp(list_of_files_tmp(iterator_pre,:));
         path_tmp = fullfile(path,list_of_files_tmp(iterator_pre).name); % full path to matched file
         var_tmp = ncread(path_tmp,var);                                                          % read cmip6 file
         lon_from_file = ncread(path_tmp,'lon');                                                     % read longitude, maybe not necessary for every file
         lat_from_file = ncread(path_tmp,'lat'); 
 
-        if count_pre == 1 % getting years 
+        if count_of_files == 1 % getting years 
             year_start = file_year_start;
         end
         year_stop = file_year_end;
@@ -373,12 +365,11 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 emp
         for month_count = 1 : size(var_tmp,3)                                                                         % number of years in file mb different
                                                                                                                   % cycle for every month in file 
             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
-            var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind);
-            var_year_tmp = var_year_tmp + var_month_sum;                                                              % summ of flow for a year
+            var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
+            output(month_total_ind) = var_month_sum/mask_square;
+            month_total_ind = month_total_ind + 1;
+
             if mod(month_count,12) == 0                                                                               % when year is full:
-                output(year_ind) = var_year_tmp;                                                                      % get result
-                var_year_tmp = 0;
-                year_ind = year_ind +1;
                 month_ind = 1;
             end  
         end
@@ -386,12 +377,12 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 emp
         if str2double(file_years(5:6)) ~= 1 || str2double(file_years(12:13)) ~= 12% check for errors
             disp('Problem with months. File:   ---------------------------------------------------------------------------------------------------'); 
             disp(list_of_files_tmp(iterator_pre).name);
-            count_pre = 0;
+            count_of_files = 0;
             break;
         end
 %         disp('done');
 %     elseif file_var ~= var
-%         disp('Other variable');
+%         disp('No such variable');
 %     elseif file_year_end < years(1)
 %         disp('The file is out of years range (hist)');
 %     elseif file_year_start > years(end)
@@ -399,21 +390,18 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 emp
     end
 end
 
-if count_pre == 0
-    disp('There are no matching files');
-    var_years = NaN;
+if count_of_files == 0
+    disp('There are no matching files---------------------------------------------------------------------------------------------------');
+%     var_years = NaN;
     output = NaN;
-    error_flag = 1;
+%     error_flag = 1;
 else
-    var_years = year_start:year_stop;
+%     var_years = year_start:year_stop;
     disp(var);
     disp('done');
-    error_flag = 0;
+%     error_flag = 0;
 end
-% figure;
-% plot(var_years,output);
 end
-
 
 function [lon_cut,lat_cut,lon_cut_ind,lat_cut_ind] = find_cut_points(given_lon,given_lat)
 %   Input vars are lon and lat of a given file. Using coordinates of
@@ -461,14 +449,14 @@ var_month_sum = sum(var_month_cut_int,'all')*days_a_month(month_ind)*sec_in_day;
 end
 
 
-function [fixed] = fix_years(years_for,data)
-% Cut required part of data according to years used in analys
-
-global years
-%days_a_month sec_in_day f_k_flipped s_k lon_my_mesh lat_my_mesh
-  
-first_ind = find(years_for == years(1));
-second_ind = find(years_for == years(end));
-
-fixed = data(first_ind:second_ind);
-end
+% function [fixed] = fix_years(years_for,data)
+% % Cut required part of data according to years used in analys
+% 
+% global years
+% %days_a_month sec_in_day f_k_flipped s_k lon_my_mesh lat_my_mesh
+%   
+% first_ind = find(years_for == years(1));
+% second_ind = find(years_for == years(end));
+% 
+% fixed = data(first_ind:second_ind);
+% end
