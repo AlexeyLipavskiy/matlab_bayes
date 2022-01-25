@@ -62,7 +62,7 @@ sst_ds_dt = detrend3(sst_ds,sst_t);
 
 
 
-load north_pacific_mask.mat
+load rivers_data\north_pacific_mask.mat
 %%
 f_k_north_pacific(find(f_k_north_pacific >= 0.5)) = 1;
 f_k_north_pacific(find(f_k_north_pacific < 0.5)) = 0;
@@ -199,6 +199,7 @@ ind(:,12) = [];
 cor_test = corr(ind, ind);
 
 %%
+figure
 plot(pc_masked(1,:)/max(pc_masked(1,:)))
 hold on
 plot(-ind(:,1)/max(ind(:,1)))
