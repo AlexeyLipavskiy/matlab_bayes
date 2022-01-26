@@ -11,12 +11,12 @@ global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon
 years = 2015:2100;
 river_name = 'amur';
 
-variable_name = 'pr';
+variable_name = 'mrros';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list.xls';
-
 save_flag = false;
+% save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
 days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
@@ -205,14 +205,14 @@ list_ssp585_marks = list_tmp_file(:,11);
 
 %%
 years_ssp = years;
-P_126_21 = var_126;
-P_245_21 = var_245;
-P_585_21 = var_585;
+Rs_126_21 = var_126;
+Rs_245_21 = var_245;
+Rs_585_21 = var_585;
 %%
 % save_flag = true;
 if save_flag == true
-    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','P_126_21'...
-    ,'list_of_models_126','P_245_21','list_of_models_245','P_585_21','list_of_models_585');
+    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','Rs_126_21'...
+    ,'list_of_models_126','Rs_245_21','list_of_models_245','Rs_585_21','list_of_models_585');
 end
 
 
@@ -222,7 +222,15 @@ years = 1979:2014;
 list_hist_models = list_tmp_file(:,1);
 list_hist_marks = list_tmp_file(:,2);
 [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
-
+%%
+years_hist = years;
+Rs_hist = var_hist;
+%%
+% save_flag = true;
+if save_flag == true
+    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist','Rs_hist'...
+    ,'list_of_models_hist');
+end
 
 
 %%
@@ -244,16 +252,16 @@ list_hist_marks = list_tmp_file(:,2);
 % plot(z, output2)
 %%
 
-% years_21 = years;
-% P_126_21 = P_126;
-% R_126_21 = R_126;
-% Rs_126_21 = Rs_126;
-% P_245_21 = P_245;
-% R_245_21 = R_245;
-% Rs_245_21 = Rs_245;
-% P_585_21 = P_585;
-% R_585_21 = R_585;
-% Rs_585_21 = Rs_585;
+path = '..\CMIP_6\ssp126\CMCC-CM2-SR5\tos_Omon_CMCC-CM2-SR5_ssp126_r1i1p1f1_gn_201501-210012.nc';
+a = ncread(path,'tos');
+lon_from_file = ncread(path,'longitude');                                                     % read longitude, maybe not necessary for every file
+lat_from_file = ncread(path,'latitude'); 
+%%
+lon = lon_from_file(:,1);
+lat = lat_from_file(1,:);
+imagesc(lon, lat,a(:,:,1)')
+borders
+set(gca,'YDir','normal');
 
 
 %%
@@ -361,8 +369,13 @@ else
 %     error_flag = 0;
 end
 var_years = year_start:year_stop;
-first_ind = find((var_years == years(1))*12);
-output = tmp((first_ind-1)*12 + 1:end);
+if years(1) <= 2014
+    
+    first_ind = find((var_years == years(1))*12);
+    output = tmp((first_ind-1)*12 + 1:end);
+else
+    
+end
 end
 
 function [lon_cut,lat_cut,lon_cut_ind,lat_cut_ind] = find_cut_points(given_lon,given_lat)

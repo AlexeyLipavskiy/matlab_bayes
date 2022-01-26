@@ -62,7 +62,7 @@ sst_ds_dt = detrend3(sst_ds,sst_t);
 
 
 
-load rivers_data\north_pacific_mask.mat
+load rivers_data_year\north_pacific_mask.mat
 %%
 f_k_north_pacific(find(f_k_north_pacific >= 0.5)) = 1;
 f_k_north_pacific(find(f_k_north_pacific < 0.5)) = 0;
@@ -195,7 +195,7 @@ ind(end-2:end,:) = [];
 ind(:,12) = [];
 %%
 [cor,p_val] = corr(pc_masked',ind);
-% cor2 = corrcoef(pc(1,:)',ind(:,end));
+cor2 = corrcoef(pc_masked(1,:)',ind(:,end));
 cor_test = corr(ind, ind);
 
 %%

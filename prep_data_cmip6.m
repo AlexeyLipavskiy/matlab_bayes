@@ -15,8 +15,8 @@ variable_name = 'mrros';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list.xls';
-
-save_flag = true;
+save_flag = false;
+% save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
 days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
@@ -194,20 +194,20 @@ list_ssp126_marks = list_tmp_file(:,8);
 [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
 % 
 %     SSP_245
-list_ssp245_models = list_tmp_file(:,7);
-list_ssp245_marks = list_tmp_file(:,8);
-[list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
-
-%     SSP_585
-list_ssp585_models = list_tmp_file(:,10);
-list_ssp585_marks = list_tmp_file(:,11);
-[list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
+% list_ssp245_models = list_tmp_file(:,7);
+% list_ssp245_marks = list_tmp_file(:,8);
+% [list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
+% 
+% %     SSP_585
+% list_ssp585_models = list_tmp_file(:,10);
+% list_ssp585_marks = list_tmp_file(:,11);
+% [list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
 
 %%
 years_ssp = years;
-Rs_126_21 = var_126;
-Rs_245_21 = var_245;
-Rs_585_21 = var_585;
+% Rs_126_21 = var_126;
+% Rs_245_21 = var_245;
+% Rs_585_21 = var_585;
 %%
 % save_flag = true;
 if save_flag == true
@@ -369,8 +369,14 @@ else
 %     error_flag = 0;
 end
 var_years = year_start:year_stop;
-first_ind = find((var_years == years(1))*12);
-output = tmp((first_ind-1)*12 + 1:end);
+if years(1) <= 2014
+    
+    first_ind = find((var_years == years(1)));
+    output = tmp((first_ind-1)*12 + 1:end);
+else
+    last_ind = find((var_years == years(end)));
+    output = tmp(1:last_ind*12);
+end
 end
 
 function [lon_cut,lat_cut,lon_cut_ind,lat_cut_ind] = find_cut_points(given_lon,given_lat)

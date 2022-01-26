@@ -1,4 +1,4 @@
-path = '..\CMIP_6\historical\ACCESS-CM2';
+path = '..\CMIP_6\ssp585\ACCESS-CM2';
 var = 'mrro';
 
 
@@ -9,7 +9,7 @@ var = 'mrro';
 % средние годовые значения и склеивает их по всем доступным файлам в папке.
 % global days_a_month years sec_in_day f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh
 global years
-years = 1979:2014;
+years = 2015:2050;
 
 % length_of_var = numel(var);
 % list_of_files_tmp = ls(path);
@@ -48,7 +48,7 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
                                                                                                                   % cycle for every month in file 
             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
             var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
-            output2(month_total_ind) = var_month_sum/mask_square;
+            tmp(month_total_ind) = var_month_sum/mask_square;
             month_total_ind = month_total_ind + 1;
 %             var_year_tmp = var_year_tmp + var_month_sum;                                                              % summ of flow for a year
             if mod(month_count,12) == 0                                                                               % when year is full:
@@ -73,10 +73,23 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %     elseif file_year_start > years(end)
 %         disp('The file is out of years range (ssp)');
     end
-var_years = year_start:year_stop;
-first_ind = find((var_years == years(1))*12);
-output = output2((first_ind-1)*12 + 1:end);
+
 end
+
+
+
+
+var_years = year_start:year_stop;
+if years(1) <= 2014
+    
+    first_ind = find((var_years == years(1)));
+    output = tmp((first_ind-1)*12 + 1:end);
+else
+    last_ind = find((var_years == years(end)));
+    output = tmp(1:last_ind*12);
+end
+
+
 
 if count_of_files == 0
     disp('There are no matching files');
@@ -92,11 +105,11 @@ end
 % figure;
 % plot(var_years,output);
 %%
-mask_square = 2.405724570515236e+12;
-
-y = 1979:1/12:2015-1/12;
-
-plot(y, output/mask_square)
+% mask_square = 2.405724570515236e+12;
+% 
+% y = 1979:1/12:2015-1/12;
+% 
+% plot(y, output/mask_square)
 %%
 year_ind = 1;
 var_year_tmp = 0;
@@ -114,7 +127,7 @@ for i = 1: size(output,2)
 end
 %%
 z = 1979:2014;
-plot(z, output3)
+plot(years, output3)
 %%
 
 
