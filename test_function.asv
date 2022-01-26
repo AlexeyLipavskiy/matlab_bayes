@@ -48,7 +48,7 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
                                                                                                                   % cycle for every month in file 
             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
             var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
-            output2(month_total_ind) = var_month_sum/mask_square;
+            output(month_total_ind) = var_month_sum/mask_square;
             month_total_ind = month_total_ind + 1;
 %             var_year_tmp = var_year_tmp + var_month_sum;                                                              % summ of flow for a year
             if mod(month_count,12) == 0                                                                               % when year is full:
@@ -73,9 +73,8 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %     elseif file_year_start > years(end)
 %         disp('The file is out of years range (ssp)');
     end
-var_years = year_start:year_stop;
-first_ind = find((var_years == years(1))*12);
-output = output2((first_ind-1)*12 + 1:end);
+first_ind = find(first_years == years(1));
+first_part = first(first_ind:end);
 end
 
 if count_of_files == 0
@@ -105,7 +104,7 @@ for i = 1: size(output,2)
     
             var_year_tmp = var_year_tmp + output(i);                                                              % summ of flow for a year
             if mod(month_count,12) == 0                                                                               % when year is full:
-                output3(year_ind) = var_year_tmp;                                                                      % get result
+                output2(year_ind) = var_year_tmp;                                                                      % get result
                 var_year_tmp = 0;
                 year_ind = year_ind +1;
 %                 month_ind = 1;
@@ -114,7 +113,7 @@ for i = 1: size(output,2)
 end
 %%
 z = 1979:2014;
-plot(z, output3)
+plot(z, output2)
 %%
 
 
