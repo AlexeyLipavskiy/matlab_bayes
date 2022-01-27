@@ -9,72 +9,71 @@ global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon
     lat_my_mesh mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop path_to_folder
 %% User parameters
 years = 2015:2100;
-river_name = 'amur';
 
-variable_name = 'mrros';
+
+variable_name = 'tos';
 path_to_folder = '../CMIP_6/';
 
-exel_list_name = 'list.xls';
+exel_list_name = 'list+slp+tos.xls';
 save_flag = false;
 % save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
 days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
-%%
-switch river_name
-    case 'amur'
-        basin_number = 23;
-    case 'ob'
-        basin_number = 253;
-    case 'lena'
-        basin_number = 252;       
-    case 'yenisey'
-        basin_number = 3;
-    case 'sev_dvina'
-        basin_number = 11;
-    case 'volga'
-        basin_number = 16;
-    case 'ural'
-        basin_number = 30;
-    otherwise
-        ME = MException('MyComponent:noSuchVariable', 'river name error!');
-        throw(ME)
-end
-% basin_number = 23;
-% sev dvina 11
-% volga 16
-% amur 23
-% ural 30
-% 'Yenisey' 3
-% Lena 252
-% Ob 253
+
 %% Mask
 
-if string(river_name) == "selenga"
-     path_mask = '../r_Selenga.cno';
-    selenga_mask = dlmread(path_mask);
-    river_mask = selenga_mask;
-else
-    path_basins = '../basins/Major_Basins_of_the_World.shp';
-    basins_shape = shaperead(path_basins);
-    amur_shape = basins_shape(basin_number);
-    river_mask(:,1) = amur_shape.X;
-    river_mask(:,2) = amur_shape.Y;
+load rivers_data_year\north_pacific_mask.mat
+%%
+imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific)
+set(gca,'YDir','normal');
+borders
+%%
 
-    river_mask(end-1:end,:) = [];
-end
-%% test part
+% path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
+
+path= '..\CMIP_6\ssp126\FIO-ESM-2-0\tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc';
+a = ncread(path, 'tos');
+lat = ncread(path, 'latitude');
+lon = ncread(path, 'longitude');
+tmp = a(:,:,1);
+%%
+path2 = '..\CMIP_6\ssp585\TaiESM1\mrro_Lmon_TaiESM1_ssp585_r1i1p1f1_gn_201501-210012.nc';
+a2 = ncread(path2, 'mrro');
+lat2 = ncread(path2, 'lat');
+lon2 = ncread(path2, 'lon');
+tmp2 = a2(:,:,6);
+%%
+tmp2(tmp2 == 0) = NaN;
+
+% imagesc(b, lat(1,:), tmp')
+% set(gca,'YDir','normal');
 % figure;
-% geoplot(river_mask(:,2),river_mask(:,1),'.');
-% geobasemap colorterrain
+% imagesc(lon2, lat2, tmp2')
+% set(gca,'YDir','normal');
+imagesc( tmp');
+set(gca,'YDir','normal');
+figure;
+imagesc(tmp2' );
+set(gca,'YDir','normal');
+
+%%
+b = lon(:,size(lon,1)/2);
+
+%%
+mesh(b, lat(1,:), tmp');
+figure;
+mesh(lon);
 
 
-% figure;
-% plot(selenga_mask(:,1),selenga_mask(:,2),'.'); % -> 46 : 53.5 lat  
-% grid on;                                        %   96.5 : 113.5 long
-% figure;
-% geoplot(selenga_mask(:,2), selenga_mask(:,1));
-% geobasemap colorterrain
+
+
+
+
+
+
+
+
 %% Mesh (creating regular mesh)
 
 %bounds
@@ -113,26 +112,26 @@ mesh_b_y = mesh_b_y_start : mesh_step : mesh_b_y_stop;
 parall_degree = pi/180*6377020*cos(deg2rad(mesh_b_y));
 %% Counting f_k
 
-river_pgon = polyshape(river_mask(:,1), river_mask(:,2));
-
-for y_count = 1 : numel(mesh_b_y)-1
-    
-    y1 = (mesh_b_y_stop-(y_count)*mesh_step);
-    y2 = y1;
-    y3 = (mesh_b_y_stop-(y_count-1)*mesh_step);
-    y4 = y3;
-        
-    for x_count = 1 : numel(mesh_b_x)-1
-        x1 = (mesh_b_x_start+(x_count-1)*mesh_step);
-        x2 = (mesh_b_x_start+(x_count)*mesh_step);
-        x3 = x2;
-        x4 = x1;
-                 
-        mesh_pgon(y_count,x_count) = polyshape([x1 x2 x3 x4],[y1 y2 y3 y4]);
-        mesh_square(y_count,x_count) = (mesh_step^2)*(111134.861111*(parall_degree(end-(y_count))+parall_degree(end-(y_count-1)))/2);
-                   
-    end
-end
+% river_pgon = polyshape(river_mask(:,1), river_mask(:,2));
+% 
+% for y_count = 1 : numel(mesh_b_y)-1
+%     
+%     y1 = (mesh_b_y_stop-(y_count)*mesh_step);
+%     y2 = y1;
+%     y3 = (mesh_b_y_stop-(y_count-1)*mesh_step);
+%     y4 = y3;
+%         
+%     for x_count = 1 : numel(mesh_b_x)-1
+%         x1 = (mesh_b_x_start+(x_count-1)*mesh_step);
+%         x2 = (mesh_b_x_start+(x_count)*mesh_step);
+%         x3 = x2;
+%         x4 = x1;
+%                  
+%         mesh_pgon(y_count,x_count) = polyshape([x1 x2 x3 x4],[y1 y2 y3 y4]);
+%         mesh_square(y_count,x_count) = (mesh_step^2)*(111134.861111*(parall_degree(end-(y_count))+parall_degree(end-(y_count-1)))/2);
+%                    
+%     end
+% end
 %%
 % figure;
 % plot(mesh_pgon);
@@ -143,11 +142,11 @@ end
 % xlabel('Latitude');
 % ylabel('Longitude');
 %% calculating coef. s_k
-mesh_mask_intersect = intersect(mesh_pgon,river_pgon);
-f_k = area(mesh_mask_intersect)./0.25;
-f_k_flipped = flip(f_k);
-s_k = flip(mesh_square).*ones(numel(mesh_b_y)-1,numel(mesh_b_x)-1).*f_k_flipped;
-mask_square = sum(s_k, 'all');
+% mesh_mask_intersect = intersect(mesh_pgon,river_pgon);
+% f_k = area(mesh_mask_intersect)./0.25;
+% f_k_flipped = flip(f_k);
+% s_k = flip(mesh_square).*ones(numel(mesh_b_y)-1,numel(mesh_b_x)-1).*f_k_flipped;
+% mask_square = sum(s_k, 'all');
 %% mesh
 
 mesh_lat = mesh_b_x_start + mesh_step/2 : mesh_step : mesh_b_x_stop - mesh_step/2;
@@ -155,7 +154,7 @@ mesh_lon = mesh_b_y_start + mesh_step/2 : mesh_step : mesh_b_y_stop - mesh_step/
 
 [lon_my_mesh,lat_my_mesh] = ndgrid(mesh_lat,mesh_lon);                                                         % my new mesh 
 
-clear mesh_mask_intersect mesh_pgon selenga_pgon
+% clear mesh_mask_intersect mesh_pgon selenga_pgon
 
 %% test part
 % figure;
