@@ -23,7 +23,7 @@ days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 
 %% Mask
 
-load rivers_data_year/north_atlantic_mask.mat
+load rivers_data_year/north_pacific_mask.mat
 %%
 imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific)
 set(gca,'YDir','normal');
@@ -69,24 +69,23 @@ lat_corr = lat(size(lon,1)/2,:);
 zer = find(diff(lon_corr) < 0);
 if zer < length(lon_corr)/2
     cp = zer + length(lon_corr)/2;
-    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]-180;
-    tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
+    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)];
+    tmp_out = [tmp(cp:end-1,:,:),tmp()];
     
 elseif zer > length(lon_corr)/2    
     cp = zer - length(lon_corr)/2;
-    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]-180; 
+    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]; 
     
 end
 
 
 
-%%
-imagesc(lon_out, lat_corr, tmp_out');
-set(gca,'YDir','normal');
-%%
 
-imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific);
-set(gca,'YDir','normal');
+% imagesc(lon_corr, lat_corr, tmp');
+% set(gca,'YDir','normal');
+
+
+
 
 
 
@@ -101,10 +100,9 @@ tmp2(tmp2 == 0) = NaN;
 % figure;
 % imagesc(lon2, lat2, tmp2')
 % set(gca,'YDir','normal');
-imagesc( tmp_out');
+imagesc( tmp');
 set(gca,'YDir','normal');
 figure;
-
 imagesc(tmp2' );
 set(gca,'YDir','normal');
 
