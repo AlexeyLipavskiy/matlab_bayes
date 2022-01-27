@@ -23,7 +23,7 @@ days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 
 %% Mask
 
-load rivers_data_year/north_atlantic_mask.mat
+load rivers_data_year/north_pacific_mask.mat
 %%
 imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific)
 set(gca,'YDir','normal');

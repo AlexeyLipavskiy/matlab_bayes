@@ -66,7 +66,8 @@ load rivers_data_year\north_pacific_mask.mat
 %%
 f_k_north_pacific(find(f_k_north_pacific >= 0.5)) = 1;
 f_k_north_pacific(find(f_k_north_pacific < 0.5)) = 0;
-% imagesc((f_k_north_pacific));
+%%
+imagesc((f_k_north_pacific));
 %%
 f_k_north_pacific = flip(f_k_north_pacific);
 %%
