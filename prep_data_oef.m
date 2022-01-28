@@ -23,20 +23,21 @@ days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 
 %% Mask
 
-load rivers_data_year/north_pacific_mask.mat
+load rivers_data_year/nor-20_pacif_mask_0.5.mat
 %%
-imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific)
-set(gca,'YDir','normal');
-borders
+% imagesc(lon_full, (lat_full), f_k_north_pacific')
+% set(gca,'YDir','normal');
+% borders
+imagesc(f_k_north_pacific)
 %%
-path_list = ["../Raw/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc";
-    "../Raw/tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc";
-    "../Raw/tos_Omon_KACE-1-0-G_ssp126_r1i1p1f1_gr_201501-210012.nc";
-    "../Raw/tos_Omon_CESM2-WACCM_ssp126_r1i1p1f1_gr_201501-210012.nc";
-    "../Raw/tos_Omon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc";
-    "../Raw/tos_Omon_INM-CM5-0_historical_r1i1p1f1_gr1_185001-189912.nc";
-    "../Raw/tos_Omon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185501-185912.nc";
-    "../Raw/tos_Omon_KIOST-ESM_ssp126_r1i1p1f1_gr1_201501-210012.nc"
+path_list = ["../CMIP_6/ssp585/TaiESM1/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc";
+    "../CMIP_6/ssp126/FIO-ESM-2-0/tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc";
+    "../CMIP_6/ssp126/KACE-1-0-G/tos_Omon_KACE-1-0-G_ssp126_r1i1p1f1_gr_201501-210012.nc";
+%     "../Raw/tos_Omon_CESM2-WACCM_ssp126_r1i1p1f1_gr_201501-210012.nc";
+    "../CMIP_6/historical/CMCC-CM2-SR5/tos_Omon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc";
+    "../CMIP_6/historical/INM-CM5-0/tos_Omon_INM-CM5-0_historical_r1i1p1f1_gr1_185001-189912.nc";
+    "../CMIP_6/historical/MPI-ESM1-2-HR/tos_Omon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185501-185912.nc";
+%     "../Raw/tos_Omon_KIOST-ESM_ssp126_r1i1p1f1_gr1_201501-210012.nc"
     
     
 ];
@@ -45,7 +46,7 @@ path_list = ["../Raw/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc";
 % path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
 
 % path= '..\CMIP_6\ssp126\FIO-ESM-2-0\tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc';
-path= path_list(1);
+path= path_list(2);
 
 a = ncread(path, 'tos');
 lat = ncread(path, 'latitude');
@@ -53,6 +54,10 @@ lon = ncread(path, 'longitude');
 % lat = ncread(path, 'lat');
 % lon = ncread(path, 'lon');
 tmp = a(:,:,1);
+%%
+mesh(lat);
+figure;
+mesh(lon);
 %%
 path2 = '../CMIP_6/ssp585/TaiESM1/mrro_Lmon_TaiESM1_ssp585_r1i1p1f1_gn_201501-210012.nc';
 % path2 = '../CMIP_6/ssp126/MPI-ESM1-2-HR/mrro_Lmon_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_203501-203912.nc';
@@ -64,57 +69,92 @@ tmp2 = a2(:,:,6);
 
 %%
 lon_corr = lon(:,size(lon,1)/2);
-lat_corr = lat(size(lon,1)/2,:);
+lat_corr = lat(round(size(lon,1)/1.01),:);
 
 zer = find(diff(lon_corr) < 0);
 if zer < length(lon_corr)/2
     cp = zer + length(lon_corr)/2;
-    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]-180;
+    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)];
+    lon_out(1:length(lon_corr)/2 ) = lon_out(1:length(lon_corr)/2)-360;
     tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
     
 elseif zer > length(lon_corr)/2    
     cp = zer - length(lon_corr)/2;
     lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]-180; 
-    
+    tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
 end
 
 
 
+
+
+
+
+
 %%
-imagesc(lon_out, lat_corr, tmp_out');
+% imagesc(lon_out, lat_corr, tmp_out');
+% set(gca,'YDir','normal');
+% %%
+% 
+% imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific);
+% set(gca,'YDir','normal');
+imagesc(tmp_out);
+%%
+
+% [lon_new_tmp,lat_new_tmp] = ndgrid(lon_new,lat_new); 
+% [na_lon_tmp,na_lat_tmp] = ndgrid(na_lon_tmp,na_lat_tmp); 
+% [na_lon_tmp,na_lat_tmp] = ndgrid(mesh_b_x, mesh_b_y); 
+
+[lon_corr_grid,lat_corr_grid] = ndgrid(lon_out,lat_corr); 
+[lon_full_grid,lat_full_grid] = ndgrid(lon_full,lat_full); 
+
+
+% int_obj = griddedInterpolant(ndgrid(lon_corr,lat_corr), tmp_out);
+int_obj = griddedInterpolant(lon_corr_grid, lat_corr_grid, tmp_out);
+
+% f_k_north_pacific_int(:,:) = int_obj(lon_new_tmp,lat_new_tmp); 
+tmp_int(:,:) = int_obj(lon_full_grid,lat_full_grid);
+
+%%
+
+imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
 set(gca,'YDir','normal');
+borders
+
+
+
+
+
+
+
+
+
+
+
+
+
 %%
-
-imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific);
-set(gca,'YDir','normal');
-
-
-
-
-
-
-%%
-tmp2(tmp2 == 0) = NaN;
-
-% imagesc(b, lat(1,:), tmp')
+% tmp2(tmp2 == 0) = NaN;
+% 
+% % imagesc(b, lat(1,:), tmp')
+% % set(gca,'YDir','normal');
+% % figure;
+% % imagesc(lon2, lat2, tmp2')
+% % set(gca,'YDir','normal');
+% imagesc( tmp_out');
 % set(gca,'YDir','normal');
 % figure;
-% imagesc(lon2, lat2, tmp2')
+% 
+% imagesc(tmp2' );
 % set(gca,'YDir','normal');
-imagesc( tmp_out');
-set(gca,'YDir','normal');
-figure;
-
-imagesc(tmp2' );
-set(gca,'YDir','normal');
-
-%%
-b = lon(:,size(lon,1)/2);
-
-%%
-mesh(b, lat(1,:), tmp');
-figure;
-mesh(lon);
+% 
+% %%
+% b = lon(:,size(lon,1)/2);
+% 
+% %%
+% mesh(b, lat(1,:), tmp');
+% figure;
+% mesh(lon);
 
 
 

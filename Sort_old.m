@@ -32,31 +32,33 @@ f = waitbar(0,'Please wait...');
 for count = 1:n_of_files
     name_split = strsplit(list_of_files_raw(count,:),'_');
     exp_name = string(name_split(4));
-    path_exp = path_dest+exp_name;
-    
-    model_name = string(name_split(3));
-    list_of_models = string(ls(path_exp));
-    
-    if isempty(find(list_of_models == model_name,1)) % esli net takoy papki s imenem modeli
-        cd (path_exp)
-        mkdir (model_name)
-        if isfile(fullfile(path_exp,model_name,list_of_files_raw(count,:))) % check if file already exists
-            disp(list_of_files_raw(count,:));
-            disp('This file already exists in this folder');
-            continue
-        end
-        movefile (fullfile("..\",path_raw,list_of_files_raw(count,:)) , fullfile("..\",path_exp,model_name))
-        cd ..\ % move to CMIP_6
-    else
-        if isfile(fullfile(path_exp,model_name,list_of_files_raw(count,:))) % check if file already exists
-            disp(list_of_files_raw(count,:));
-            disp('This file already exists in this folder');
-            continue
-        end
+    if name_split(2) ~= "day"
+        path_exp = path_dest+exp_name;
 
-        movefile (fullfile(path_raw,list_of_files_raw(count,:)) , fullfile(path_exp,model_name))       
+        model_name = string(name_split(3));
+        list_of_models = string(ls(path_exp));
+
+        if isempty(find(list_of_models == model_name,1)) % esli net takoy papki s imenem modeli
+            cd (path_exp)
+            mkdir (model_name)
+            if isfile(fullfile(path_exp,model_name,list_of_files_raw(count,:))) % check if file already exists
+                disp(list_of_files_raw(count,:));
+                disp('This file already exists in this folder');
+                continue
+            end
+            movefile (fullfile("..\",path_raw,list_of_files_raw(count,:)) , fullfile("..\",path_exp,model_name))
+            cd ..\ % move to CMIP_6
+        else
+            if isfile(fullfile(path_exp,model_name,list_of_files_raw(count,:))) % check if file already exists
+                disp(list_of_files_raw(count,:));
+                disp('This file already exists in this folder');
+                continue
+            end
+
+            movefile (fullfile(path_raw,list_of_files_raw(count,:)) , fullfile(path_exp,model_name))       
+        end
+        waitbar(count/n_of_files,f);
     end
-    waitbar(count/n_of_files,f);
 end
 
 close(f)
