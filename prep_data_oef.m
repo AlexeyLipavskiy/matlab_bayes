@@ -46,7 +46,7 @@ path_list = ["../CMIP_6/ssp585/TaiESM1/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_20820
 % path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
 
 % path= '..\CMIP_6\ssp126\FIO-ESM-2-0\tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc';
-path= path_list(2);
+path= path_list(1);
 
 a = ncread(path, 'tos');
 lat = ncread(path, 'latitude');
@@ -66,21 +66,28 @@ a2 = ncread(path2, 'mrro');
 lat2 = ncread(path2, 'lat');
 lon2 = ncread(path2, 'lon');
 tmp2 = a2(:,:,6);
+%%
+imagesc(tmp);
+figure;
+imagesc(tmp2);
+
 
 %%
 lon_corr = lon(:,size(lon,1)/2);
-lat_corr = lat(round(size(lon,1)/1.01),:);
-
+% lat_corr = lat(round(size(lon,1)/1.01),:);
+lat_corr = flip(lat(201,:));
+%%
 zer = find(diff(lon_corr) < 0);
 if zer < length(lon_corr)/2
     cp = zer + length(lon_corr)/2;
-    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)];
+    lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)];
     lon_out(1:length(lon_corr)/2 ) = lon_out(1:length(lon_corr)/2)-360;
     tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
     
 elseif zer > length(lon_corr)/2    
     cp = zer - length(lon_corr)/2;
-    lon_out = [lon_corr(cp:end-1);lon_corr(1:cp)]-180; 
+    lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)]; 
+    lon_out(1:ceil(length(lon_corr)/2)) = lon_out(1:ceil(length(lon_corr)/2))-360;
     tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
 end
 
@@ -99,8 +106,11 @@ end
 % imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific);
 % set(gca,'YDir','normal');
 imagesc(tmp_out);
-%%
+%% experiment
+% lat_out = linspace(-90,90, size(tmp, 2));
+lon_out = linspace(-180,180, size(tmp, 1));
 
+%%
 % [lon_new_tmp,lat_new_tmp] = ndgrid(lon_new,lat_new); 
 % [na_lon_tmp,na_lat_tmp] = ndgrid(na_lon_tmp,na_lat_tmp); 
 % [na_lon_tmp,na_lat_tmp] = ndgrid(mesh_b_x, mesh_b_y); 
@@ -117,7 +127,9 @@ tmp_int(:,:) = int_obj(lon_full_grid,lat_full_grid);
 
 %%
 
-imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
+% imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
+imagesc(lon_full, flip(lat_full), (tmp_int)');
+
 set(gca,'YDir','normal');
 borders
 
