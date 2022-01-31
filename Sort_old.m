@@ -9,8 +9,8 @@ clear all
 
 %%
 years = 1979:2020;
-path_raw = '..\Raw\';
-path_dest = '..\CMIP_6\';
+path_raw = '../Raw/';
+path_dest = '../CMIP_6/';
 
 
 %%
@@ -46,8 +46,8 @@ for count = 1:n_of_files
                 disp('This file already exists in this folder');
                 continue
             end
-            movefile (fullfile("..\",path_raw,list_of_files_raw(count,:)) , fullfile("..\",path_exp,model_name))
-            cd ..\ % move to CMIP_6
+            movefile (fullfile("../",path_raw,list_of_files_raw(count,:)) , fullfile("../",path_exp,model_name))
+            cd ../ % move to CMIP_6
         else
             if isfile(fullfile(path_exp,model_name,list_of_files_raw(count,:))) % check if file already exists
                 disp(list_of_files_raw(count,:));
