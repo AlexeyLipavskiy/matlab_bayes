@@ -46,6 +46,14 @@ sst_t(1:960) =[];
 sst_ds = deseason(sst,sst_t);
 %%
 
+% sst_test_ds = deseason(sst,'monthly','dim',3);
+% plot(sst_ds)
+% hold on
+% plot(sst_test_ds)
+%%
+
+%%
+
 sst_ds_dt = detrend3(sst_ds,sst_t);
 %%
 

@@ -1,6 +1,12 @@
+clc
+clear all
+%%
 path = '..\CMIP_6\ssp585\ACCESS-CM2';
-var = 'mrro';
-
+var = 'pr';
+global years  f_k_north_pacific
+load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
+years = 2015:2100;
+%%
 
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует
@@ -8,8 +14,10 @@ var = 'mrro';
 % начале скрипта в глобалах). Далее работает с каждым файлом - расчитывает
 % средние годовые значения и склеивает их по всем доступным файлам в папке.
 % global days_a_month years sec_in_day f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh
-global years
-years = 2015:2050;
+global years mask_int_obj
+
+
+%%
 
 % length_of_var = numel(var);
 % list_of_files_tmp = ls(path);
@@ -20,7 +28,6 @@ disp(path);% to check in command window
 % year_ind = 1;
 month_ind_for_calc_days = 1;
 month_total_ind = 1;
-
 for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'empty' values in the begining
 
     file_name_split = strsplit(list_of_files_tmp(iterator_pre).name,'_');% split name for blocks
@@ -35,29 +42,33 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %         disp(list_of_files_tmp(iterator_pre,:));
         path_tmp = fullfile(path,list_of_files_tmp(iterator_pre).name); % full path to matched file
         var_tmp = ncread(path_tmp,var);                                                          % read cmip6 file
-        lon_from_file = ncread(path_tmp,'lon');                                                     % read longitude, maybe not necessary for every file
-        lat_from_file = ncread(path_tmp,'lat'); 
+      
 
         if count_of_files == 1 % getting years 
             year_start = file_year_start;
+            output_tmp = var_tmp;
+            lon_from_file = ncread(path_tmp,'lon');                                                     % read longitude, maybe not necessary for every file
+            lat_from_file = ncread(path_tmp,'lat');
+            time_from_file = ncread(path_tmp,'time');
+        else
+            output_tmp = cat(3, output_tmp, var_tmp);
+            time_from_file = [time_from_file; ncread(path_tmp,'time')];
         end
         year_stop = file_year_end;
         
-        [lon_cmip6,lat_cmip6,lon_ind_cmip6,lat_ind_cmip6] = find_cut_points(lon_from_file,lat_from_file);% different files have diff mesh
-        for month_count = 1 : size(var_tmp,3)                                                                         % number of years in file mb different
-                                                                                                                  % cycle for every month in file 
-            var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
-            var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
-            tmp(month_total_ind) = var_month_sum/mask_square;
-            month_total_ind = month_total_ind + 1;
-%             var_year_tmp = var_year_tmp + var_month_sum;                                                              % summ of flow for a year
-            if mod(month_count,12) == 0                                                                               % when year is full:
-%                 output(year_ind) = var_year_tmp;                                                                      % get result
-%                 var_year_tmp = 0;
-%                 year_ind = year_ind +1;
-                month_ind = 1;
-            end  
-        end
+        
+%         [lon_cmip6,lat_cmip6,lon_ind_cmip6,lat_ind_cmip6] = find_cut_points(lon_from_file,lat_from_file);% different files have diff mesh
+%         for month_count = 1 : size(var_tmp,3)                                                                         % number of years in file mb different
+%                                                                                                                   % cycle for every month in file 
+%             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
+%             var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
+%             tmp(month_total_ind) = var_month_sum/mask_square;
+%             month_total_ind = month_total_ind + 1;
+% 
+%             if mod(month_count,12) == 0                                                                               % when year is full:
+%                 month_ind = 1;
+%             end  
+%         end
 
         if str2double(file_years(5:6)) ~= 1 || str2double(file_years(12:13)) ~= 12% check for errors
             disp('Problem with months. File:   ---------------------------------------------------------------------------------------------------'); 
@@ -73,26 +84,10 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %     elseif file_year_start > years(end)
 %         disp('The file is out of years range (ssp)');
     end
-
 end
-
-
-
-
-var_years = year_start:year_stop;
-if years(1) <= 2014
-    
-    first_ind = find((var_years == years(1)));
-    output = tmp((first_ind-1)*12 + 1:end);
-else
-    last_ind = find((var_years == years(end)));
-    output = tmp(1:last_ind*12);
-end
-
-
-
+%%
 if count_of_files == 0
-    disp('There are no matching files');
+    disp('There are no matching files---------------------------------------------------------------------------------------------------');
 %     var_years = NaN;
     output = NaN;
 %     error_flag = 1;
@@ -102,29 +97,54 @@ else
     disp('done');
 %     error_flag = 0;
 end
+var_years = year_start:year_stop;
+if years(1) <= 2014
+    
+    first_ind = find((var_years == years(1))*12);
+    output = output_tmp(:,:,(first_ind-1)*12 + 1:end);
+    time = time_from_file((first_ind-1)*12 + 1:end);
+else
+    last_ind = find((var_years == years(end)));
+    output = output_tmp(:,:,1:last_ind*12);
+    time = time_from_file(1:last_ind*12);
+end
 % figure;
 % plot(var_years,output);
 %%
-% mask_square = 2.405724570515236e+12;
-% 
-% y = 1979:1/12:2015-1/12;
-% 
-% plot(y, output/mask_square)
+ 
+[lon_var_grid,lat_var_grid] = ndgrid(lon_from_file,lat_from_file); 
+mask_int(:,:) = mask_int_obj(lon_var_grid,lat_var_grid);
 %%
-year_ind = 1;
-var_year_tmp = 0;
-month_count = 1;
-for i = 1: size(output,2)
-    
-            var_year_tmp = var_year_tmp + output(i);                                                              % summ of flow for a year
-            if mod(month_count,12) == 0                                                                               % when year is full:
-                output3(year_ind) = var_year_tmp;                                                                      % get result
-                var_year_tmp = 0;
-                year_ind = year_ind +1;
-%                 month_ind = 1;
-            end 
-            month_count = month_count +1;
+for mon = 1:size(output,3)
+    output(:,:,mon) = output(:,:,mon).*logical(mask_int);
 end
+%%
+% imagesc(lon_from_file,lat_from_file, output(:,:,671)')
+% borders
+% set(gca,'YDir','normal');
+%%
+datenum_t = double(time + datenum(years(1),1,0));
+
+output_ds = deseason(output,datenum_t);
+
+output_ds_dt = detrend3(output_ds,datenum_t);
+
+[eof_maps_masked,pc_masked,expv_masked] = eof(output_ds_dt,1);
+%%
+% year_ind = 1;
+% var_year_tmp = 0;
+% month_count = 1;
+% for i = 1: size(output,2)
+%     
+%             var_year_tmp = var_year_tmp + output(i);                                                              % summ of flow for a year
+%             if mod(month_count,12) == 0                                                                               % when year is full:
+%                 output3(year_ind) = var_year_tmp;                                                                      % get result
+%                 var_year_tmp = 0;
+%                 year_ind = year_ind +1;
+% %                 month_ind = 1;
+%             end 
+%             month_count = month_count +1;
+% end
 %%
 z = 1979:2014;
 plot(years, output3)

@@ -5,13 +5,14 @@ clear all
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',14,'DefaultTextFontName','Times New Roman');
 
-global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon_my_mesh...
-    lat_my_mesh mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop path_to_folder
+% global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon_my_mesh...
+%     lat_my_mesh mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop path_to_folder
+global path_to_folder years mask_int_obj
 %% User parameters
 years = 2015:2100;
 
 
-variable_name = 'tos';
+variable_name = 'tas';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list+slp+tos.xls';
@@ -23,20 +24,25 @@ days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 
 %% Mask
 
-load rivers_data_year/nor-20_pacif_mask_0.5.mat
+load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
+
+[lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
+mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
+
+
 %%
 % imagesc(lon_full, (lat_full), f_k_north_pacific')
 % set(gca,'YDir','normal');
 % borders
 imagesc(f_k_north_pacific)
 %%
-path_list = ["../CMIP_6/ssp585/TaiESM1/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc";
-    "../CMIP_6/ssp126/FIO-ESM-2-0/tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc";
-    "../CMIP_6/ssp126/KACE-1-0-G/tos_Omon_KACE-1-0-G_ssp126_r1i1p1f1_gr_201501-210012.nc";
-%     "../Raw/tos_Omon_CESM2-WACCM_ssp126_r1i1p1f1_gr_201501-210012.nc";
-    "../CMIP_6/historical/CMCC-CM2-SR5/tos_Omon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc";
-    "../CMIP_6/historical/INM-CM5-0/tos_Omon_INM-CM5-0_historical_r1i1p1f1_gr1_185001-189912.nc";
-    "../CMIP_6/historical/MPI-ESM1-2-HR/tos_Omon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185501-185912.nc";
+path_list = ["../Raw/tas_Amon_BCC-CSM2-MR_historical_r1i1p1f1_gn_185001-201412.nc";
+    "../Raw/tas_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc";
+    "../Raw/tas_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc";
+    "../Raw/tas_Amon_FIO-ESM-2-0_historical_r1i1p1f1_gn_185001-201412.nc";
+    "../Raw/tas_Amon_INM-CM5-0_historical_r1i1p1f1_gr1_195001-201412.nc";
+    "../Raw/tas_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185001-185412.nc";
+    "../Raw/tas_Amon_TaiESM1_historical_r1i1p1f1_gn_185001-201412.nc";
 %     "../Raw/tos_Omon_KIOST-ESM_ssp126_r1i1p1f1_gr1_201501-210012.nc"
     
     
@@ -46,18 +52,18 @@ path_list = ["../CMIP_6/ssp585/TaiESM1/tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_20820
 % path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
 
 % path= '..\CMIP_6\ssp126\FIO-ESM-2-0\tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc';
-path= path_list(1);
+path= path_list(7);
 
-a = ncread(path, 'tos');
-lat = ncread(path, 'latitude');
-lon = ncread(path, 'longitude');
-% lat = ncread(path, 'lat');
-% lon = ncread(path, 'lon');
+a = ncread(path, 'tas');
+% lat = ncread(path, 'latitude');
+% lon = ncread(path, 'longitude');
+lat = ncread(path, 'lat');
+lon = ncread(path, 'lon');
 tmp = a(:,:,1);
 %%
-mesh(lat);
-figure;
-mesh(lon);
+% mesh(lat);
+% figure;
+% mesh(lon);
 %%
 path2 = '../CMIP_6/ssp585/TaiESM1/mrro_Lmon_TaiESM1_ssp585_r1i1p1f1_gn_201501-210012.nc';
 % path2 = '../CMIP_6/ssp126/MPI-ESM1-2-HR/mrro_Lmon_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_203501-203912.nc';
@@ -67,29 +73,47 @@ lat2 = ncread(path2, 'lat');
 lon2 = ncread(path2, 'lon');
 tmp2 = a2(:,:,6);
 %%
-imagesc(tmp);
+imagesc(lon, lat, tmp');
+borders
 figure;
-imagesc(tmp2);
+imagesc(lon2, lat2, tmp2);
+borders
 
 
 %%
-lon_corr = lon(:,size(lon,1)/2);
-% lat_corr = lat(round(size(lon,1)/1.01),:);
-lat_corr = flip(lat(201,:));
+% lat_mask = lat_full;
+% lon_mask = linspace(0, 359.5, 720);
+% %%
+% save rivers_data_year/nor-20_pacif_mask_0.5_shift.mat f_k_north_pacific s_k_north_pacific lon_mask lat_mask
+% %%
+% s_k_north_pacific = cat(1, s_k_north_pacific(361:end,:), s_k_north_pacific(1:360,:));
+% %%
+% f_k_north_pacific = cat(1, f_k_north_pacific(361:end,:), f_k_north_pacific(1:360,:));
 %%
-zer = find(diff(lon_corr) < 0);
-if zer < length(lon_corr)/2
-    cp = zer + length(lon_corr)/2;
-    lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)];
-    lon_out(1:length(lon_corr)/2 ) = lon_out(1:length(lon_corr)/2)-360;
-    tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
-    
-elseif zer > length(lon_corr)/2    
-    cp = zer - length(lon_corr)/2;
-    lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)]; 
-    lon_out(1:ceil(length(lon_corr)/2)) = lon_out(1:ceil(length(lon_corr)/2))-360;
-    tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
-end
+imagesc(lon_mask, lat_full, (f_k_north_pacific)');
+set(gca,'YDir','normal');
+borders
+figure;
+imagesc(lon, lat, tmp');
+set(gca,'YDir','normal');
+borders
+% lon_corr = lon(:,size(lon,1)/2);
+% % lat_corr = lat(round(size(lon,1)/1.01),:);
+% lat_corr = flip(lat(201,:));
+%%
+% zer = find(diff(lon_corr) < 0);
+% if zer < length(lon_corr)/2
+%     cp = zer + length(lon_corr)/2;
+%     lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)];
+%     lon_out(1:length(lon_corr)/2 ) = lon_out(1:length(lon_corr)/2)-360;
+%     tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
+%     
+% elseif zer > length(lon_corr)/2    
+%     cp = zer - length(lon_corr)/2;
+%     lon_out = [lon_corr(cp+1:end);lon_corr(1:cp)]; 
+%     lon_out(1:ceil(length(lon_corr)/2)) = lon_out(1:ceil(length(lon_corr)/2))-360;
+%     tmp_out = cat(1, tmp(cp:end-1,:,:),tmp(1:cp,:,:));
+% end
 
 
 
@@ -105,30 +129,31 @@ end
 % 
 % imagesc(mesh_b_x, flip(mesh_b_y), f_k_north_pacific);
 % set(gca,'YDir','normal');
-imagesc(tmp_out);
+% imagesc(tmp_out);
 %% experiment
 % lat_out = linspace(-90,90, size(tmp, 2));
-lon_out = linspace(-180,180, size(tmp, 1));
+% lon_out = linspace(-180,180, size(tmp, 1));
 
 %%
 % [lon_new_tmp,lat_new_tmp] = ndgrid(lon_new,lat_new); 
 % [na_lon_tmp,na_lat_tmp] = ndgrid(na_lon_tmp,na_lat_tmp); 
 % [na_lon_tmp,na_lat_tmp] = ndgrid(mesh_b_x, mesh_b_y); 
 
-[lon_corr_grid,lat_corr_grid] = ndgrid(lon_out,lat_corr); 
-[lon_full_grid,lat_full_grid] = ndgrid(lon_full,lat_full); 
+[lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
+[lon_var_grid,lat_var_grid] = ndgrid(lon,lat); 
 
 
 % int_obj = griddedInterpolant(ndgrid(lon_corr,lat_corr), tmp_out);
-int_obj = griddedInterpolant(lon_corr_grid, lat_corr_grid, tmp_out);
+int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
 
 % f_k_north_pacific_int(:,:) = int_obj(lon_new_tmp,lat_new_tmp); 
-tmp_int(:,:) = int_obj(lon_full_grid,lat_full_grid);
+mask_int(:,:) = int_obj(lon_var_grid,lat_var_grid);
 
 %%
-
+figure
 % imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
-imagesc(lon_full, flip(lat_full), (tmp_int)');
+
+imagesc(lon, lat, (logical(mask_int).*tmp)');
 
 set(gca,'YDir','normal');
 borders
@@ -180,39 +205,39 @@ borders
 %% Mesh (creating regular mesh)
 
 %bounds
-mesh_step = 0.5;
-
-x_start_m = min(river_mask(:,1));
-x_stop_m = max(river_mask(:,1));
-y_start_m = min(river_mask(:,2));
-y_stop_m = max(river_mask(:,2));
-
-mesh_b_x_start = fix(x_start_m);
-if x_start_m - mesh_b_x_start >= 0.5
-    mesh_b_x_start = mesh_b_x_start + 0.5;
-end
-
-mesh_b_y_start = fix(y_start_m);
-if y_start_m - mesh_b_y_start >= 0.5
-    mesh_b_y_start = mesh_b_y_start + 0.5;
-end
-
-mesh_b_x_stop = ceil(x_stop_m);
-if mesh_b_x_stop - x_stop_m >= 0.5
-    mesh_b_x_stop = mesh_b_x_stop - 0.5;
-end
-
-mesh_b_y_stop = ceil(y_stop_m);
-if mesh_b_y_stop - y_stop_m >= 0.5
-    mesh_b_y_stop = mesh_b_y_stop - 0.5;
-end
-
-
-mesh_b_x = mesh_b_x_start : mesh_step : mesh_b_x_stop;
-mesh_b_y = mesh_b_y_start : mesh_step : mesh_b_y_stop;
-
-% f_k = zeros(numel(mesh_b_y)-1,numel(mesh_b_x)-1);
-parall_degree = pi/180*6377020*cos(deg2rad(mesh_b_y));
+% mesh_step = 0.5;
+% 
+% x_start_m = min(river_mask(:,1));
+% x_stop_m = max(river_mask(:,1));
+% y_start_m = min(river_mask(:,2));
+% y_stop_m = max(river_mask(:,2));
+% 
+% mesh_b_x_start = fix(x_start_m);
+% if x_start_m - mesh_b_x_start >= 0.5
+%     mesh_b_x_start = mesh_b_x_start + 0.5;
+% end
+% 
+% mesh_b_y_start = fix(y_start_m);
+% if y_start_m - mesh_b_y_start >= 0.5
+%     mesh_b_y_start = mesh_b_y_start + 0.5;
+% end
+% 
+% mesh_b_x_stop = ceil(x_stop_m);
+% if mesh_b_x_stop - x_stop_m >= 0.5
+%     mesh_b_x_stop = mesh_b_x_stop - 0.5;
+% end
+% 
+% mesh_b_y_stop = ceil(y_stop_m);
+% if mesh_b_y_stop - y_stop_m >= 0.5
+%     mesh_b_y_stop = mesh_b_y_stop - 0.5;
+% end
+% 
+% 
+% mesh_b_x = mesh_b_x_start : mesh_step : mesh_b_x_stop;
+% mesh_b_y = mesh_b_y_start : mesh_step : mesh_b_y_stop;
+% 
+% % f_k = zeros(numel(mesh_b_y)-1,numel(mesh_b_x)-1);
+% parall_degree = pi/180*6377020*cos(deg2rad(mesh_b_y));
 %% Counting f_k
 
 % river_pgon = polyshape(river_mask(:,1), river_mask(:,2));
@@ -252,10 +277,10 @@ parall_degree = pi/180*6377020*cos(deg2rad(mesh_b_y));
 % mask_square = sum(s_k, 'all');
 %% mesh
 
-mesh_lat = mesh_b_x_start + mesh_step/2 : mesh_step : mesh_b_x_stop - mesh_step/2;
-mesh_lon = mesh_b_y_start + mesh_step/2 : mesh_step : mesh_b_y_stop - mesh_step/2;
-
-[lon_my_mesh,lat_my_mesh] = ndgrid(mesh_lat,mesh_lon);                                                         % my new mesh 
+% mesh_lat = mesh_b_x_start + mesh_step/2 : mesh_step : mesh_b_x_stop - mesh_step/2;
+% mesh_lon = mesh_b_y_start + mesh_step/2 : mesh_step : mesh_b_y_stop - mesh_step/2;
+% 
+% [lon_my_mesh,lat_my_mesh] = ndgrid(mesh_lat,mesh_lon);                                                         % my new mesh 
 
 % clear mesh_mask_intersect mesh_pgon selenga_pgon
 
@@ -265,6 +290,9 @@ mesh_lon = mesh_b_y_start + mesh_step/2 : mesh_step : mesh_b_y_stop - mesh_step/
 % ya = [46.25 53.25]; 
 % imagesc(xa,ya,f_k_flipped);
 % set(gca,'YDir','normal'); % change axis direction to normal (default is reverse)
+
+
+
 
 %% CMIP_6
 
@@ -296,20 +324,20 @@ list_ssp126_marks = list_tmp_file(:,8);
 [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
 % 
 %     SSP_245
-list_ssp245_models = list_tmp_file(:,7);
-list_ssp245_marks = list_tmp_file(:,8);
-[list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
-
-%     SSP_585
-list_ssp585_models = list_tmp_file(:,10);
-list_ssp585_marks = list_tmp_file(:,11);
-[list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
-
-%%
-years_ssp = years;
-Rs_126_21 = var_126;
-Rs_245_21 = var_245;
-Rs_585_21 = var_585;
+% list_ssp245_models = list_tmp_file(:,7);
+% list_ssp245_marks = list_tmp_file(:,8);
+% [list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
+% 
+% %     SSP_585
+% list_ssp585_models = list_tmp_file(:,10);
+% list_ssp585_marks = list_tmp_file(:,11);
+% [list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
+% 
+% %%
+% years_ssp = years;
+% Rs_126_21 = var_126;
+% Rs_245_21 = var_245;
+% Rs_585_21 = var_585;
 %%
 % save_flag = true;
 if save_flag == true
@@ -319,20 +347,20 @@ end
 
 
 %%     hist
-years = 1979:2014;
-
-list_hist_models = list_tmp_file(:,1);
-list_hist_marks = list_tmp_file(:,2);
-[list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
-%%
-years_hist = years;
-Rs_hist = var_hist;
-%%
-% save_flag = true;
-if save_flag == true
-    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist','Rs_hist'...
-    ,'list_of_models_hist');
-end
+% years = 1979:2014;
+% 
+% list_hist_models = list_tmp_file(:,1);
+% list_hist_marks = list_tmp_file(:,2);
+% [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
+% %%
+% years_hist = years;
+% Rs_hist = var_hist;
+% %%
+% % save_flag = true;
+% if save_flag == true
+%     save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist','Rs_hist'...
+%     ,'list_of_models_hist');
+% end
 
 
 %%
@@ -354,17 +382,6 @@ end
 % plot(z, output2)
 %%
 
-path = '..\CMIP_6\ssp126\CMCC-CM2-SR5\tos_Omon_CMCC-CM2-SR5_ssp126_r1i1p1f1_gn_201501-210012.nc';
-a = ncread(path,'tos');
-lon_from_file = ncread(path,'longitude');                                                     % read longitude, maybe not necessary for every file
-lat_from_file = ncread(path,'latitude'); 
-%%
-lon = lon_from_file(:,1);
-lat = lat_from_file(1,:);
-imagesc(lon, lat,a(:,:,1)')
-borders
-set(gca,'YDir','normal');
-
 
 %%
 % if save == true
@@ -383,20 +400,20 @@ function[list, var_out] = calc_var(list_models, list_marks, path, var_name)
         if string(list_marks(count_list)) == '+'
             count_for_suit_files = count_for_suit_files + 1
 %             disp(fullfile(path_to_folder,'/ssp126/',char(list_ssp126_models(count_list))));
-            var_out(count_for_suit_files,:) = calculate_cmip6(fullfile(path_to_folder,path,char(list_models(count_list))),var_name);
+            var_out(count_for_suit_files,:) = calculate_cmip6_eof(fullfile(path_to_folder,path,char(list_models(count_list))),var_name);
             list(count_for_suit_files) = list_models(count_list);
         end
     end  
 end
 
-function [output] = calculate_cmip6(path,var)
+function [output] = calculate_cmip6_eof(path,var)
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует
 % из них те, которые с нужной переменной и подходят по годам (заданным в
 % начале скрипта в глобалах). Далее работает с каждым файлом - расчитывает
 % средние годовые значения и склеивает их по всем доступным файлам в папке.
 % global days_a_month years sec_in_day f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh
-global years mask_square
+global years 
 
 
 % length_of_var = numel(var);
