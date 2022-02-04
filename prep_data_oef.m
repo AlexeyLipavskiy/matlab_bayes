@@ -15,13 +15,13 @@ years = 2015:2100;
 variable_name = 'tas';
 path_to_folder = '../CMIP_6/';
 
-exel_list_name = 'list+slp+tos.xls';
+exel_list_name = 'list+slp+tas.xls';
 save_flag = false;
 % save_flag = true;
 %% constants
-sec_in_day = 60*60*24;
-days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
-
+% sec_in_day = 60*60*24;
+% days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
+% sst_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_187001-202112.nc
 %% Mask
 
 load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
@@ -34,9 +34,9 @@ mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacifi
 % imagesc(lon_full, (lat_full), f_k_north_pacific')
 % set(gca,'YDir','normal');
 % borders
-imagesc(f_k_north_pacific)
+% imagesc(f_k_north_pacific)
 %%
-path_list = ["../Raw/tas_Amon_BCC-CSM2-MR_historical_r1i1p1f1_gn_185001-201412.nc";
+path_list = ["../CMIP_6/historical/BCC-CSM2-MR/tas_Amon_BCC-CSM2-MR_historical_r1i1p1f1_gn_185001-201412.nc";
     "../Raw/tas_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc";
     "../Raw/tas_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc";
     "../Raw/tas_Amon_FIO-ESM-2-0_historical_r1i1p1f1_gn_185001-201412.nc";
@@ -49,14 +49,14 @@ path_list = ["../Raw/tas_Amon_BCC-CSM2-MR_historical_r1i1p1f1_gn_185001-201412.n
 ];
 %%
 
-% path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
-
+% % path= '..\CMIP_6\ssp585\TaiESM1\tos_Omon_TaiESM1_ssp585_r1i1p1f1_gn_208201-208212.nc';
+% 
 % path= '..\CMIP_6\ssp126\FIO-ESM-2-0\tos_Omon_FIO-ESM-2-0_ssp126_r1i1p1f1_gn_201501-210012.nc';
-path= path_list(7);
-
+path= path_list(1);
+% 
 a = ncread(path, 'tas');
-% lat = ncread(path, 'latitude');
-% lon = ncread(path, 'longitude');
+% % lat = ncread(path, 'latitude');
+% % lon = ncread(path, 'longitude');
 lat = ncread(path, 'lat');
 lon = ncread(path, 'lon');
 tmp = a(:,:,1);
@@ -65,19 +65,20 @@ tmp = a(:,:,1);
 % figure;
 % mesh(lon);
 %%
-path2 = '../CMIP_6/ssp585/TaiESM1/mrro_Lmon_TaiESM1_ssp585_r1i1p1f1_gn_201501-210012.nc';
-% path2 = '../CMIP_6/ssp126/MPI-ESM1-2-HR/mrro_Lmon_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_203501-203912.nc';
-
-a2 = ncread(path2, 'mrro');
-lat2 = ncread(path2, 'lat');
-lon2 = ncread(path2, 'lon');
-tmp2 = a2(:,:,6);
-%%
+% path2 = '../CMIP_6/ssp585/TaiESM1/mrro_Lmon_TaiESM1_ssp585_r1i1p1f1_gn_201501-210012.nc';
+% % path2 = '../CMIP_6/ssp126/MPI-ESM1-2-HR/mrro_Lmon_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_203501-203912.nc';
+% 
+% a2 = ncread(path2, 'mrro');
+% lat2 = ncread(path2, 'lat');
+% lon2 = ncread(path2, 'lon');
+% tmp2 = a2(:,:,6);
+% %%
 imagesc(lon, lat, tmp');
 borders
-figure;
-imagesc(lon2, lat2, tmp2);
-borders
+set(gca,'YDir','normal');
+% figure;
+% imagesc(lon2, lat2, tmp2);
+% borders
 
 
 %%
@@ -90,16 +91,16 @@ borders
 % %%
 % f_k_north_pacific = cat(1, f_k_north_pacific(361:end,:), f_k_north_pacific(1:360,:));
 %%
-imagesc(lon_mask, lat_full, (f_k_north_pacific)');
-set(gca,'YDir','normal');
-borders
-figure;
-imagesc(lon, lat, tmp');
-set(gca,'YDir','normal');
-borders
-% lon_corr = lon(:,size(lon,1)/2);
-% % lat_corr = lat(round(size(lon,1)/1.01),:);
-% lat_corr = flip(lat(201,:));
+% imagesc(lon_mask, lat_full, (f_k_north_pacific)');
+% set(gca,'YDir','normal');
+% borders
+% figure;
+% imagesc(lon, lat, tmp');
+% set(gca,'YDir','normal');
+% borders
+% % lon_corr = lon(:,size(lon,1)/2);
+% % % lat_corr = lat(round(size(lon,1)/1.01),:);
+% % lat_corr = flip(lat(201,:));
 %%
 % zer = find(diff(lon_corr) < 0);
 % if zer < length(lon_corr)/2
@@ -139,24 +140,24 @@ borders
 % [na_lon_tmp,na_lat_tmp] = ndgrid(na_lon_tmp,na_lat_tmp); 
 % [na_lon_tmp,na_lat_tmp] = ndgrid(mesh_b_x, mesh_b_y); 
 
-[lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
-[lon_var_grid,lat_var_grid] = ndgrid(lon,lat); 
-
-
-% int_obj = griddedInterpolant(ndgrid(lon_corr,lat_corr), tmp_out);
-int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
-
-% f_k_north_pacific_int(:,:) = int_obj(lon_new_tmp,lat_new_tmp); 
-mask_int(:,:) = int_obj(lon_var_grid,lat_var_grid);
-
-%%
-figure
-% imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
-
-imagesc(lon, lat, (logical(mask_int).*tmp)');
-
-set(gca,'YDir','normal');
-borders
+% [lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
+% [lon_var_grid,lat_var_grid] = ndgrid(lon,lat); 
+% 
+% 
+% % int_obj = griddedInterpolant(ndgrid(lon_corr,lat_corr), tmp_out);
+% int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
+% 
+% % f_k_north_pacific_int(:,:) = int_obj(lon_new_tmp,lat_new_tmp); 
+% mask_int(:,:) = int_obj(lon_var_grid,lat_var_grid);
+% 
+% %%
+% figure
+% % imagesc(lon_full, lat_full, (tmp_int.*f_k_north_pacific)');
+% 
+% imagesc(lon, lat, (logical(mask_int).*tmp)');
+% 
+% set(gca,'YDir','normal');
+% borders
 
 
 
@@ -319,9 +320,9 @@ list_tmp_file = list_tmp_file(3:end,:);
 
 %%
 %     SSP_126
-list_ssp126_models = list_tmp_file(:,7);
-list_ssp126_marks = list_tmp_file(:,8);
-[list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
+% list_ssp126_models = list_tmp_file(:,7);
+% list_ssp126_marks = list_tmp_file(:,8);
+% [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
 % 
 %     SSP_245
 % list_ssp245_models = list_tmp_file(:,7);
@@ -347,11 +348,11 @@ end
 
 
 %%     hist
-% years = 1979:2014;
-% 
-% list_hist_models = list_tmp_file(:,1);
-% list_hist_marks = list_tmp_file(:,2);
-% [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
+years = 1979:2014;
+
+list_hist_models = list_tmp_file(:,1);
+list_hist_marks = list_tmp_file(:,2);
+[list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
 % %%
 % years_hist = years;
 % Rs_hist = var_hist;
@@ -406,15 +407,17 @@ function[list, var_out] = calc_var(list_models, list_marks, path, var_name)
     end  
 end
 
-function [output] = calculate_cmip6_eof(path,var)
+function [pc_masked] = calculate_cmip6_eof(path,var)
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует
 % из них те, которые с нужной переменной и подходят по годам (заданным в
 % начале скрипта в глобалах). Далее работает с каждым файлом - расчитывает
 % средние годовые значения и склеивает их по всем доступным файлам в папке.
 % global days_a_month years sec_in_day f_k_flipped s_k mask_square lon_my_mesh lat_my_mesh
-global years 
+global years mask_int_obj
 
+
+%%
 
 % length_of_var = numel(var);
 % list_of_files_tmp = ls(path);
@@ -439,26 +442,33 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %         disp(list_of_files_tmp(iterator_pre,:));
         path_tmp = fullfile(path,list_of_files_tmp(iterator_pre).name); % full path to matched file
         var_tmp = ncread(path_tmp,var);                                                          % read cmip6 file
-        lon_from_file = ncread(path_tmp,'lon');                                                     % read longitude, maybe not necessary for every file
-        lat_from_file = ncread(path_tmp,'lat'); 
+      
 
         if count_of_files == 1 % getting years 
             year_start = file_year_start;
+            output_tmp = var_tmp;
+            lon_from_file = ncread(path_tmp,'lon');                                                     % read longitude, maybe not necessary for every file
+            lat_from_file = ncread(path_tmp,'lat');
+            time_from_file = ncread(path_tmp,'time');
+        else
+            output_tmp = cat(3, output_tmp, var_tmp);
+            time_from_file = [time_from_file; ncread(path_tmp,'time')];
         end
         year_stop = file_year_end;
         
-        [lon_cmip6,lat_cmip6,lon_ind_cmip6,lat_ind_cmip6] = find_cut_points(lon_from_file,lat_from_file);% different files have diff mesh
-        for month_count = 1 : size(var_tmp,3)                                                                         % number of years in file mb different
-                                                                                                                  % cycle for every month in file 
-            var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
-            var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
-            tmp(month_total_ind) = var_month_sum/mask_square;
-            month_total_ind = month_total_ind + 1;
-
-            if mod(month_count,12) == 0                                                                               % when year is full:
-                month_ind = 1;
-            end  
-        end
+        
+%         [lon_cmip6,lat_cmip6,lon_ind_cmip6,lat_ind_cmip6] = find_cut_points(lon_from_file,lat_from_file);% different files have diff mesh
+%         for month_count = 1 : size(var_tmp,3)                                                                         % number of years in file mb different
+%                                                                                                                   % cycle for every month in file 
+%             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
+%             var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
+%             tmp(month_total_ind) = var_month_sum/mask_square;
+%             month_total_ind = month_total_ind + 1;
+% 
+%             if mod(month_count,12) == 0                                                                               % when year is full:
+%                 month_ind = 1;
+%             end  
+%         end
 
         if str2double(file_years(5:6)) ~= 1 || str2double(file_years(12:13)) ~= 12% check for errors
             disp('Problem with months. File:   ---------------------------------------------------------------------------------------------------'); 
@@ -475,7 +485,7 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %         disp('The file is out of years range (ssp)');
     end
 end
-
+%%
 if count_of_files == 0
     disp('There are no matching files---------------------------------------------------------------------------------------------------');
 %     var_years = NaN;
@@ -491,10 +501,35 @@ var_years = year_start:year_stop;
 if years(1) <= 2014
     
     first_ind = find((var_years == years(1))*12);
-    output = tmp((first_ind-1)*12 + 1:end);
+    output = output_tmp(:,:,(first_ind-1)*12 + 1:end);
+    time = time_from_file((first_ind-1)*12 + 1:end);
 else
-    
+    last_ind = find((var_years == years(end)));
+    output = output_tmp(:,:,1:last_ind*12);
+    time = time_from_file(1:last_ind*12);
 end
+% figure;
+% plot(var_years,output);
+%%
+ 
+[lon_var_grid,lat_var_grid] = ndgrid(lon_from_file,lat_from_file); 
+mask_int(:,:) = mask_int_obj(lon_var_grid,lat_var_grid);
+%%
+for mon = 1:size(output,3)
+    output(:,:,mon) = output(:,:,mon).*logical(mask_int);
+end
+%%
+% imagesc(lon_from_file,lat_from_file, output(:,:,671)')
+% borders
+% set(gca,'YDir','normal');
+%%
+datenum_t = double(time + datenum(years(1),1,0));
+
+output_ds = deseason(output,datenum_t);
+
+output_ds_dt = detrend3(output_ds,datenum_t);
+
+[eof_maps_masked,pc_masked,expv_masked] = eof(output_ds_dt,1);
 end
 
 function [lon_cut,lat_cut,lon_cut_ind,lat_cut_ind] = find_cut_points(given_lon,given_lat)

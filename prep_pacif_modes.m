@@ -1,6 +1,6 @@
-clc
-close all
-clear all
+% clc
+% close all
+% clear all
 %%
 load index.mat
 
@@ -180,7 +180,7 @@ for v = 1:size(sst_ds,3)
     sst_ds_masked(:,:,v) = sst_ds_dt(:,:,v).*mask1;
 end
 %%
-[eof_maps_masked,pc_masked,expv_masked] = eof(sst_ds_masked,11);
+[eof_maps_masked,pc_masked_tmp,expv_masked] = eof(sst_ds_masked,1);
 % [eof_maps,pc,expv] = eof(sst_ds,11);
 %%
 
@@ -203,13 +203,13 @@ end
 ind(end-2:end,:) = [];
 ind(:,12) = [];
 %%
-[cor,p_val] = corr(pc_masked',ind);
-cor2 = corrcoef(pc_masked(1,:)',ind(:,end));
+[cor,p_val] = corr(pc_masked_tmp',ind);
+cor2 = corrcoef(pc_masked_tmp(1,:)',ind(:,end));
 cor_test = corr(ind, ind);
 
 %%
 figure
-plot(pc_masked(1,:)/max(pc_masked(1,:)))
+plot(pc_masked_tmp(1,:)/max(pc_masked_tmp(1,:)))
 hold on
 plot(-ind(:,1)/max(ind(:,1)))
 %%

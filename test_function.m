@@ -1,11 +1,14 @@
-clc
-clear all
+% clc
+% clear all
 %%
-path = '..\CMIP_6\ssp585\ACCESS-CM2';
-var = 'pr';
+% path = '..\CMIP_6\ssp585\ACCESS-CM2';
+path = '../Raw/';
+var = 'sst';
+%%
 global years  f_k_north_pacific
 load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
-years = 2015:2100;
+% years = 2015:2100;
+years = 1979:2014;
 %%
 
 %UNTITLED Summary of this function goes here
@@ -116,7 +119,8 @@ end
 mask_int(:,:) = mask_int_obj(lon_var_grid,lat_var_grid);
 %%
 for mon = 1:size(output,3)
-    output(:,:,mon) = output(:,:,mon).*logical(mask_int);
+    output_2(:,:,mon) = output(:,:,mon).*logical(mask_int);
+%     fillmissing( output(:,:,mon),'constant',0);
 end
 %%
 % imagesc(lon_from_file,lat_from_file, output(:,:,671)')
@@ -125,11 +129,27 @@ end
 %%
 datenum_t = double(time + datenum(years(1),1,0));
 
-output_ds = deseason(output,datenum_t);
+output_ds = deseason(output_2,datenum_t);
 
 output_ds_dt = detrend3(output_ds,datenum_t);
 
 [eof_maps_masked,pc_masked,expv_masked] = eof(output_ds_dt,1);
+%%
+
+plot(pc_masked)
+%%
+pdo_tmp = pdo(349:780);
+%%
+pc_tmp = pc_masked(1:432);
+%%
+cor2 = corrcoef(pc_tmp',pdo_tmp);
+%%
+load index.mat
+%%
+for n =1:size(var_hist,1)
+   cor(:,:,n) = corrcoef(pdo_tmp', var_hist(n,:)); 
+end
+
 %%
 % year_ind = 1;
 % var_year_tmp = 0;
@@ -146,8 +166,8 @@ output_ds_dt = detrend3(output_ds,datenum_t);
 %             month_count = month_count +1;
 % end
 %%
-z = 1979:2014;
-plot(years, output3)
+% z = 1979:2014;
+% plot(years, output3)
 %%
 
 
