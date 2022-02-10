@@ -138,17 +138,23 @@ output_ds_dt = detrend3(output_ds,datenum_t);
 
 plot(pc_masked)
 %%
+load index.mat
 pdo_tmp = pdo(349:780);
 %%
 pc_tmp = pc_masked(1:432);
 %%
 cor2 = corrcoef(pc_tmp',pdo_tmp);
 %%
-load index.mat
+plot(1:432,var_hist);
 %%
 for n =1:size(var_hist,1)
    cor(:,:,n) = corrcoef(pdo_tmp', var_hist(n,:)); 
 end
+%%
+figure;
+plot(pc_tmp/max(pc_tmp));
+hold on;
+plot(-pdo_tmp/max(pdo_tmp));
 
 %%
 % year_ind = 1;
