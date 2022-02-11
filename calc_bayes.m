@@ -12,8 +12,8 @@ weights_list = [1, 2, 3, 4, 5, 6, 7];
 %%
 % load hist_amur13.07.21.mat% ____________________________________________
 % load ssp_amur13.07.21.mat
-load hist_amur_29.10.21.mat% ____________________________________________
-load ssp_amur_29.10.21.mat
+load rivers_data_year/hist_amur_29.10.21.mat% ____________________________________________
+load rivers_data_year/ssp_amur_29.10.21.mat
 
 river_name = 'amur';
 % load ssp_volga15.07.21.mat
@@ -22,8 +22,8 @@ river_name = 'amur';
 %% Surface of full run-off
 % mod = "surf";
 mod = "full";
-save = true;
-% save = false;
+% save = true;
+save = false;
 %%
 list_of_models_126 = list_of_models_126';
 list_of_models_245 = list_of_models_245';
@@ -350,7 +350,7 @@ for nn = 1:6
 %     bar(X,ww(2:end,w_num));
     % set(gca, 'YScale', 'log');
     % xlabel('Model');
-%     title(list_of_weights(w_num));
+    title(list_of_weights(w_num));
 
     grid on;
     xlim = get(gca,'xlim');
@@ -537,7 +537,7 @@ elseif  mod == "full"
 
 end
 
-close all;
+% close all;
 %%
 % years_full = [years,years_21];
 % for bb = 1:6
@@ -804,13 +804,36 @@ w_iav(1) = [];
     for count = 2 : num_of_models
         [y_tmp_mean(count),y_tmp_std(count),k_tmp(count),delta_k_tmp(count),delta_y_tmp_std(count)] = lin_reg(yrs,data(count,:));
 
-        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(1)^2));
-        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(1)^2));
+        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(count)^2));
+        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(count)^2));
         w_iav(count) = exp(-((delta_y_tmp_std(count)-delta_y_tmp_std(1))^2)/(2*(teta*delta_y_tmp_std(count))^2));
     end
     weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
 end
-
+% function [weights] = calc_norm_all_models(yrs, data)
+% num_of_models = size(data,1);
+% 
+% w_m = zeros(num_of_models,1);
+% w_tr = zeros(num_of_models,1);
+% w_iav = zeros(num_of_models,1);
+% teta = (2/(size(data,2)-1))^(1/4);
+% [y_tmp_mean(1),y_tmp_std(1),k_tmp(1),delta_k_tmp(1),delta_y_tmp_std(1)] = lin_reg(yrs,data(1,:));
+% w_m(1) = [];
+% w_tr(1) = [];
+% w_iav(1) = [];
+% 
+% 
+% 
+% 
+%     for count = 2 : num_of_models
+%         [y_tmp_mean(count),y_tmp_std(count),k_tmp(count),delta_k_tmp(count),delta_y_tmp_std(count)] = lin_reg(yrs,data(count,:));
+% 
+%         w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(1)^2));
+%         w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(1)^2));
+%         w_iav(count) = exp(-((delta_y_tmp_std(count)-delta_y_tmp_std(1))^2)/(2*(teta*delta_y_tmp_std(count))^2));
+%     end
+%     weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
+% end
 
 function [y_mean,y_std,k,delta_k,delta_y_std] = lin_reg(x,y)
 %           Y=A+B*X
@@ -819,32 +842,32 @@ function [y_mean,y_std,k,delta_k,delta_y_std] = lin_reg(x,y)
 % regr - коэффициент корреляции для регрессии (он в Вашей схеме не нужен),
 % regss - статистическая значимость (тоже сейчас не нужно).
 
-  x_mean = mean(x);
-  y_mean = mean(y);
-  y_std = std(y,0,2);
-  x_variance = var(x);
-  y_variance = var(y);
-  xy_mean = mean(x.*y);
-  regcoef = (xy_mean-x_mean*y_mean)/x_variance;
-  regr = regcoef*sqrt(x_variance/y_variance);
-  rrr = xcorr(x,x,1,'coeff');
-  rx = rrr(1);
-  rrr = xcorr(y,y,1,'coeff');
+x_mean = mean(x);
+y_mean = mean(y);
+y_std = std(y,0,2);
+x_variance = var(x);
+y_variance = var(y);
+xy_mean = mean(x.*y);
+regcoef = (xy_mean-x_mean*y_mean)/x_variance;
+regr = regcoef*sqrt(x_variance/y_variance);
+rrr = xcorr(x,x,1,'coeff');
+rx = rrr(1);
+rrr = xcorr(y,y,1,'coeff');
 
-  ry = rrr(1);
-  
-  cor_tmpx = ifft(fft(x).*conj(fft(x)));
-  cor_tmpy = ifft(fft(y).*conj(fft(y)));
-  
-  coefdof = (1-abs(rx*ry))/(1+abs(rx*ry));
-  eqn = length(x)*coefdof;
-  regcoefstd = sqrt((y_variance/x_variance-regcoef^2)/eqn);
-  dof = (length(x)-2)*coefdof;
-  regss = 0;
-  if(isnan(regcoefstd))
-      disp('k_std NaN!');
+ry = rrr(1);
+
+cor_tmpx = ifft(fft(x).*conj(fft(x)));
+cor_tmpy = ifft(fft(y).*conj(fft(y)));
+
+coefdof = (1-abs(rx*ry))/(1+abs(rx*ry));
+eqn = length(x)*coefdof;
+regcoefstd = sqrt((y_variance/x_variance-regcoef^2)/eqn);
+dof = (length(x)-2)*coefdof;
+regss = 0;
+if(isnan(regcoefstd))
+    disp('k_std NaN!');
     [regcoefstd x_mean y_mean x_variance y_variance]
-  end
+end
   
 k = regcoef;
 delta_k = regcoefstd;

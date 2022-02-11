@@ -164,6 +164,43 @@ clear mesh_mask_intersect mesh_pgon selenga_pgon
 % imagesc(xa,ya,f_k_flipped);
 % set(gca,'YDir','normal'); % change axis direction to normal (default is reverse)
 
+%% GPCP_2.3
+
+% https://www.ncei.noaa.gov/thredds/catalog/cdr/gpcp_final_agg/catalog.html?dataset=cdr/gpcp_final_agg/CGPC_Final_Aggregation_best.ncd
+% https://www1.ncdc.noaa.gov/pub/data/sds/cdr/CDRs/Precipitation_GPCP-Monthly/AlgorithmDescription_01B-34.pdf
+% https://www.ncdc.noaa.gov/cdr/atmospheric/precipitation-gpcp-monthly
+% units         = 'mm/day'
+%%
+
+path_to_gpcp_folder = '../GPCP_2.3_data/';
+
+year_counter = 1;
+gpcp_p_tmp = zeros(144,72);
+gpcp_p_month_sum = zeros(12,1);
+gpcp_p_year_sum = zeros(size(years,2),1);
+
+%%
+
+
+for year_ind_mrros = years
+    ls_tmp = dir(fullfile(path_to_gpcp_folder,num2str(year_ind_mrros)));
+    
+    for month_ind = 1 : 12     
+        path_gpcp_tmp = strcat(path_to_gpcp_folder,num2str(year_ind_mrros),'/',ls_tmp(month_ind+2).name);
+        gpcp_p_tmp(:,:) = ncread(path_gpcp_tmp,'precip');                                                         % mm/day  
+        lat_from_file = ncread(path_gpcp_tmp,'latitude');
+        lon_from_file = ncread(path_gpcp_tmp,'longitude');
+        [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(lon_from_file,lat_from_file);       % different files have diff mesh
+ 
+        gpcp_p_month_sum(month_ind) = cut_and_interpolate(gpcp_p_tmp,lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind);
+        gpcp_p_month_sum(month_ind) = gpcp_p_month_sum(month_ind)/sec_in_day;   
+    end
+    gpcp_p_year_sum(year_counter) = sum(gpcp_p_month_sum)/mask_square;                                           % summ of all months divided by square
+    
+    year_counter = year_counter + 1;
+end
+% overall units are mm/year
+disp('pr observed data (GPCP 2.3) done');
 %% CMIP_6
 
 %% read xls list with model names
