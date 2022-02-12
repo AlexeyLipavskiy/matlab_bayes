@@ -11,12 +11,12 @@ global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon
 years = 2015:2100;
 river_name = 'amur';
 
-variable_name = 'mrros';
+variable_name = 'pr';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list.xls';
-save_flag = false;
-% save_flag = true;
+% save_flag = false;
+save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
 days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
@@ -172,35 +172,35 @@ clear mesh_mask_intersect mesh_pgon selenga_pgon
 % units         = 'mm/day'
 %%
 
-path_to_gpcp_folder = '../GPCP_2.3_data/';
-
-year_counter = 1;
-gpcp_p_tmp = zeros(144,72);
-gpcp_p_month_sum = zeros(12,1);
-gpcp_p_year_sum = zeros(size(years,2),1);
+% path_to_gpcp_folder = '../GPCP_2.3_data/';
+% 
+% year_counter = 1;
+% gpcp_p_tmp = zeros(144,72);
+% gpcp_p_month_sum = zeros(12,1);
+% gpcp_p_year_sum = zeros(size(years,2),1);
 
 %%
 
 
-for year_ind_mrros = years
-    ls_tmp = dir(fullfile(path_to_gpcp_folder,num2str(year_ind_mrros)));
-    
-    for month_ind = 1 : 12     
-        path_gpcp_tmp = strcat(path_to_gpcp_folder,num2str(year_ind_mrros),'/',ls_tmp(month_ind+2).name);
-        gpcp_p_tmp(:,:) = ncread(path_gpcp_tmp,'precip');                                                         % mm/day  
-        lat_from_file = ncread(path_gpcp_tmp,'latitude');
-        lon_from_file = ncread(path_gpcp_tmp,'longitude');
-        [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(lon_from_file,lat_from_file);       % different files have diff mesh
- 
-        gpcp_p_month_sum(month_ind) = cut_and_interpolate(gpcp_p_tmp,lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind);
-        gpcp_p_month_sum(month_ind) = gpcp_p_month_sum(month_ind)/sec_in_day;   
-    end
-    gpcp_p_year_sum(year_counter) = sum(gpcp_p_month_sum)/mask_square;                                           % summ of all months divided by square
-    
-    year_counter = year_counter + 1;
-end
-% overall units are mm/year
-disp('pr observed data (GPCP 2.3) done');
+% for year_ind_mrros = years
+%     ls_tmp = dir(fullfile(path_to_gpcp_folder,num2str(year_ind_mrros)));
+%     
+%     for month_ind = 1 : 12     
+%         path_gpcp_tmp = strcat(path_to_gpcp_folder,num2str(year_ind_mrros),'/',ls_tmp(month_ind+2).name);
+%         gpcp_p_tmp(:,:) = ncread(path_gpcp_tmp,'precip');                                                         % mm/day  
+%         lat_from_file = ncread(path_gpcp_tmp,'latitude');
+%         lon_from_file = ncread(path_gpcp_tmp,'longitude');
+%         [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(lon_from_file,lat_from_file);       % different files have diff mesh
+%  
+%         gpcp_p_month_sum(month_ind) = cut_and_interpolate(gpcp_p_tmp,lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind);
+%         gpcp_p_month_sum(month_ind) = gpcp_p_month_sum(month_ind)/sec_in_day;   
+%     end
+%     gpcp_p_year_sum(year_counter) = sum(gpcp_p_month_sum)/mask_square;                                           % summ of all months divided by square
+%     
+%     year_counter = year_counter + 1;
+% end
+% % overall units are mm/year
+% disp('pr observed data (GPCP 2.3) done');
 %% CMIP_6
 
 %% read xls list with model names
@@ -229,27 +229,27 @@ list_tmp_file = list_tmp_file(3:end,:);
 list_ssp126_models = list_tmp_file(:,7);
 list_ssp126_marks = list_tmp_file(:,8);
 [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
-% 
+%%
 %     SSP_245
-% list_ssp245_models = list_tmp_file(:,7);
-% list_ssp245_marks = list_tmp_file(:,8);
-% [list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
-% 
-% %     SSP_585
-% list_ssp585_models = list_tmp_file(:,10);
-% list_ssp585_marks = list_tmp_file(:,11);
-% [list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
+list_ssp245_models = list_tmp_file(:,7);
+list_ssp245_marks = list_tmp_file(:,8);
+[list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
+
+%     SSP_585
+list_ssp585_models = list_tmp_file(:,10);
+list_ssp585_marks = list_tmp_file(:,11);
+[list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
 
 %%
 years_ssp = years;
-% Rs_126_21 = var_126;
-% Rs_245_21 = var_245;
-% Rs_585_21 = var_585;
+P_126_21_m = var_126;
+P_245_21_m = var_245;
+P_585_21_m = var_585;
 %%
 % save_flag = true;
 if save_flag == true
-    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','Rs_126_21'...
-    ,'list_of_models_126','Rs_245_21','list_of_models_245','Rs_585_21','list_of_models_585');
+    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','P_126_21_m'...
+    ,'list_of_models_126','P_245_21_m','list_of_models_245','P_585_21_m','list_of_models_585');
 end
 
 
@@ -261,14 +261,14 @@ list_hist_marks = list_tmp_file(:,2);
 [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
 %%
 years_hist = years;
-Rs_hist = var_hist;
+P_hist_m = var_hist;
 %%
 % save_flag = true;
 if save_flag == true
-    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist','Rs_hist'...
+    save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist','P_hist_m'...
     ,'list_of_models_hist');
 end
-
+disp("-----------------------------------DONE------------------------------------------");
 
 %%
 % year_ind = 1;

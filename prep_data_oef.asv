@@ -100,25 +100,24 @@ if save_flag == true
     ,'list_of_models_hist');
 end
 
+
 %%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% year_ind = 1;
+% var_year_tmp = 0;
+% month_count = 1;
+% for i = 1: size(var_126,2)
+%     
+%             var_year_tmp = var_year_tmp + var_126(6, i);                                                              % summ of flow for a year
+%             if mod(month_count,12) == 0                                                                               % when year is full:
+%                 output2(year_ind) = var_year_tmp;                                                                      % get result
+%                 var_year_tmp = 0;
+%                 year_ind = year_ind +1;
+% %                 month_ind = 1;
+%             end 
+%             month_count = month_count +1;
+% end
+% z = 2015:2100;
+% plot(z, output2)
 %%
 
 function[list, var_out] = calc_var(list_models, list_marks, path, var_name)

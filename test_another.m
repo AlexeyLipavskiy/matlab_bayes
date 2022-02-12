@@ -1,4 +1,5 @@
-
+% write nc-file in order to test "test function" with HadISST data as it
+% was model data
 %%
 years = 1979:2020;
 path_index = '..\Tele_index\HadISST_sst.nc';
