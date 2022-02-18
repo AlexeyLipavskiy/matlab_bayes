@@ -59,6 +59,7 @@ if size(P_585,1) ~= size(R_585,1) || size(P_585,2) ~= size(R_585,2) || size(P_58
 end
 
 %% calc Wm
+% weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
 [P_126_w] = calc_norm_all_models(years, P_126);
 [R_126_w] = calc_norm_all_models(years, R_126);
 [Rs_126_w] = calc_norm_all_models(years, Rs_126);
@@ -71,7 +72,15 @@ end
 [R_585_w] = calc_norm_all_models(years, R_585);
 [Rs_585_w] = calc_norm_all_models(years, Rs_585);
 
+%%
 
+[y_tmp_mean,y_tmp_std,k_tmp,delta_k_tmp,delta_y_tmp_std] = lin_reg(pdo_hist(1,:),P_hist_m(1,:));
+% [y_tmp_mean,y_tmp_std,k_tmp,delta_k_tmp,delta_y_tmp_std] = lin_reg(P_hist_m(1,:),pdo_hist(1,:));
+%%
+figure;
+plot(P_hist_m(1,:));
+hold on
+plot(pdo_hist(1,:)*k_tmp);
 
 
 %%
@@ -813,6 +822,46 @@ delta_y_std = std(delta_y,0,2);
   
 end
 
+function [y_mean,y_std,k,delta_k,delta_y_std] = my_lin_reg(x,y)
+%           Y=A+B*X
+%regcoef - коэффициент регрессии (который у нас k),
+%regcoefstd - стандартное отклонение для regcoef (у нас оно delta k),
+% regr - коэффициент корреляции для регрессии (он в Вашей схеме не нужен),
+% regss - статистическая значимость (тоже сейчас не нужно).
+
+x_mean = mean(x);
+y_mean = mean(y);
+y_std = std(y,0,2);
+x_variance = var(x);
+y_variance = var(y);
+xy_mean = mean(x.*y);
+regcoef = (xy_mean-x_mean*y_mean)/(mean(x.^2)-x_mean.^2);
+regr = regcoef*sqrt(x_variance/y_variance);
+rrr = xcorr(x,x,1,'coeff');
+rx = rrr(1);
+rrr = xcorr(y,y,1,'coeff');
+
+ry = rrr(1);
+
+cor_tmpx = ifft(fft(x).*conj(fft(x)));
+cor_tmpy = ifft(fft(y).*conj(fft(y)));
+
+coefdof = (1-abs(rx*ry))/(1+abs(rx*ry));
+eqn = length(x)*coefdof;
+regcoefstd = sqrt((y_variance/x_variance-regcoef^2)/eqn);
+dof = (length(x)-2)*coefdof;
+regss = 0;
+if(isnan(regcoefstd))
+    disp('k_std NaN!');
+    [regcoefstd x_mean y_mean x_variance y_variance]
+end
+  
+k = regcoef;
+delta_k = regcoefstd;
+delta_y = detrend(y);
+delta_y_std = std(delta_y,0,2);
+  
+end
 
 function[output] = month_to_year_data(mon_data)
 
