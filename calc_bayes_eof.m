@@ -14,7 +14,7 @@ weights_list = [1, 2, 3, 4, 5, 6, 7];
 % load ssp_amur13.07.21.mat
 load rivers_data_year/hist_amur_29.10.21.mat% ____________________________________________
 load rivers_data_year/ssp_amur_29.10.21.mat
-
+%%
 load rivers_data_month/pr_amur_2015-2100_month_25.01.22.mat
 load rivers_data_month/pr_amur_1979-2014_month_25.01.22.mat
 load rivers_data_month/mrro_amur_2015-2100_month_25.01.22.mat
@@ -74,7 +74,7 @@ end
 
 %%
 
-[y_tmp_mean,y_tmp_std,k_tmp,delta_k_tmp,delta_y_tmp_std] = lin_reg(pdo_hist(1,:),P_hist_m(1,:));
+[k_tmp,delta_k_tmp] = my_lin_reg(pdo_hist(1,:),P_hist_m(1,:));
 % [y_tmp_mean,y_tmp_std,k_tmp,delta_k_tmp,delta_y_tmp_std] = lin_reg(P_hist_m(1,:),pdo_hist(1,:));
 %%
 figure;
@@ -98,9 +98,11 @@ plot(pdo_hist(1,:)*k_tmp);
 % plot(z, P_585(:,1:end-1))
 %%
 
-fit
+a = month_to_year_data(runoff_xls);
 
-
+plot(years, a);
+hold on;
+plot(years,R_126(1,1:end-1), 'o');
 
 
 
@@ -822,7 +824,7 @@ delta_y_std = std(delta_y,0,2);
   
 end
 
-function [y_mean,y_std,k,delta_k,delta_y_std] = my_lin_reg(x,y)
+function [k,delta_k] = my_lin_reg(x,y)
 %           Y=A+B*X
 %regcoef - коэффициент регрессии (который у нас k),
 %regcoefstd - стандартное отклонение для regcoef (у нас оно delta k),
@@ -849,8 +851,7 @@ cor_tmpy = ifft(fft(y).*conj(fft(y)));
 coefdof = (1-abs(rx*ry))/(1+abs(rx*ry));
 eqn = length(x)*coefdof;
 regcoefstd = sqrt((y_variance/x_variance-regcoef^2)/eqn);
-dof = (length(x)-2)*coefdof;
-regss = 0;
+
 if(isnan(regcoefstd))
     disp('k_std NaN!');
     [regcoefstd x_mean y_mean x_variance y_variance]
@@ -858,13 +859,13 @@ end
   
 k = regcoef;
 delta_k = regcoefstd;
-delta_y = detrend(y);
-delta_y_std = std(delta_y,0,2);
-  
+
 end
 
 function[output] = month_to_year_data(mon_data)
-
+    if size(mon_data,1) > 1
+        mon_data = mon_data';
+    end
     n_of_models = size(mon_data, 1);
     output = zeros(n_of_models, size(mon_data, 2)/12);
     year_data_tmp = zeros(n_of_models, 1);

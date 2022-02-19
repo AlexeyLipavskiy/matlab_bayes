@@ -47,7 +47,7 @@ sst_ds = deseason(sst,sst_t);
 %%
 
 % sst_test_ds = deseason(sst,'monthly','dim',3);
-% plot(sst_ds)
+plot(sst_ds)
 % hold on
 % plot(sst_test_ds)
 %%
@@ -215,6 +215,11 @@ plot(-ind(:,1)/max(ind(:,1)))
 %%
 % cf = ifft(fft(pc_masked(1,:)).*conj(fft(ind(:,11)))');
 % plot(abs(cf))
+%%
+
+plot(sst_dt, pc_masked_tmp)
+%%
+pc_pdo_cut = pc_masked_tmp(349:780);
 
 
 
