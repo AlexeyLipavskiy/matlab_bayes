@@ -804,8 +804,8 @@ w_iav(1) = [];
     for count = 2 : num_of_models
         [y_tmp_mean(count),y_tmp_std(count),k_tmp(count),delta_k_tmp(count),delta_y_tmp_std(count)] = lin_reg(yrs,data(count,:));
 
-        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(count)^2));
-        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(count)^2));
+        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(1)^2));
+        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(1)^2));
         w_iav(count) = exp(-((delta_y_tmp_std(count)-delta_y_tmp_std(1))^2)/(2*(teta*delta_y_tmp_std(count))^2));
     end
     weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];

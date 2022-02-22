@@ -12,11 +12,11 @@ years = 1979:2014;
 river_name = 'amur';
 exel_river_name = river_name;
 
-variable_name = 'mrros';
+variable_name = 'mrro';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list.xls';
-% save_flag = false;
+save_flag = false;
 save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
@@ -281,7 +281,7 @@ years_hist = years;
 
 if variable_name == "pr"
     P_hist_m = gpcp_p_month_sum';
-    P_hist_m(2:19,:) = var_hist;
+    P_hist_m(2:19,:) = var_hist./mask_square;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist',...
@@ -289,15 +289,15 @@ if variable_name == "pr"
     end 
 elseif variable_name == "mrro" 
     R_hist_m = runoff_xls';
-    R_hist_m(2:19,:) = var_hist;
+    R_hist_m(2:19,:) = var_hist./1e12;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat", 'years_hist',...
             'R_hist_m', 'list_of_models_hist');
     end 
 elseif variable_name == "mrros"
-    R_hist_m = runoff_xls';
-    Rs_hist_m(2:19,:) = var_hist;
+    Rs_hist_m = runoff_xls';
+    Rs_hist_m(2:19,:) = var_hist./1e12;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist',...
@@ -305,7 +305,7 @@ elseif variable_name == "mrros"
     end 
 end
 %%
-% years = 2015:2100;
+years = 2015:2100;
 years_ssp = years;
 %     SSP_126
 list_ssp126_models = list_tmp_file(:,7);
@@ -325,26 +325,26 @@ list_ssp585_marks = list_tmp_file(:,11);
 %% saving SSP
 
 
-if variable_name == 'pr'
-    P_126_21_m = var_126;
-    P_245_21_m = var_245;
-    P_585_21_m = var_585;
+if variable_name == "pr"
+    P_126_21_m = var_126./mask_square;
+    P_245_21_m = var_245./mask_square;
+    P_585_21_m = var_585./mask_square;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','P_126_21_m'...
         ,'list_of_models_126','P_245_21_m','list_of_models_245','P_585_21_m','list_of_models_585');
     end 
-elseif variable_name == 'mrro' 
-    R_126_21_m = var_126;
-    R_245_21_m = var_245;
-    R_585_21_m = var_585;
+elseif variable_name == "mrro" 
+    R_126_21_m = var_126./1e12;
+    R_245_21_m = var_245./1e12;
+    R_585_21_m = var_585./1e12;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','R_126_21_m'...
         ,'list_of_models_126','R_245_21_m','list_of_models_245','R_585_21_m','list_of_models_585');
     end 
-elseif variable_name == 'mrros'
-    Rs_126_21_m = var_126;
-    Rs_245_21_m = var_245;
-    Rs_585_21_m = var_585;
+elseif variable_name == "mrros"
+    Rs_126_21_m = var_126./1e12;
+    Rs_245_21_m = var_245./1e12;
+    Rs_585_21_m = var_585./1e12;
     if save_flag == true
         save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','Rs_126_21_m'...
         ,'list_of_models_126','Rs_245_21_m','list_of_models_245','Rs_585_21_m','list_of_models_585');
@@ -455,7 +455,8 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
                                                                                                                   % cycle for every month in file 
             var_month(:,:) = var_tmp(:,:,month_count);                                                                % use one month
             var_month_sum = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind_for_calc_days);
-            tmp(month_total_ind) = var_month_sum/mask_square;
+            tmp(month_total_ind) = var_month_sum;
+%             tmp(month_total_ind) = var_month_sum/mask_square;
             month_total_ind = month_total_ind + 1;
 
             if mod(month_count,12) == 0                                                                               % when year is full:

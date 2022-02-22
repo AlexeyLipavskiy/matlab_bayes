@@ -2,19 +2,33 @@ clear all
 close all
 clc
 %%
+river_name = 'amur';
+
+%% Surface or full run-off
+% mod = "surf";
+mod = "full";
+
+% save = true;
+save = false;
+
+%%
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',14,'DefaultTextFontName','Times New Roman');
-global col_arr weights_list
-col_arr = ['#0072BD';'#D95319';'#EDB120';'#7E2F8E';'#77AC30';'#4DBEEE';'#A2142F'];
+global col_arr weights_list list_of_models_hist
+col_arr = ['#0072BD';'#D95319';'#EDB120';'#7E2F8E';'#77AC30';'#4DBEEE';'#A2142F';'#00FF00'];
 % weights_list = [1, 6, 7];
-weights_list = [1, 2, 3, 4, 5, 6, 7];
+weights_list = [1, 2, 3, 4, 5, 6, 7, 8];
 % figure('Units', 'normalized', 'OuterPosition', [.3 .3 .4 .4]);
 %%
 % load hist_amur13.07.21.mat% ____________________________________________
 % load ssp_amur13.07.21.mat
-load rivers_data_year/hist_amur_29.10.21.mat% ____________________________________________
-load rivers_data_year/ssp_amur_29.10.21.mat
+% load rivers_data_year/hist_amur_29.10.21.mat% ____________________________________________
+% load rivers_data_year/ssp_amur_29.10.21.mat
 %%
+
+load rivers_data_month/pdo(tas)_1979-2014_month_11.02.22.mat
+load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
+
 load rivers_data_month/pr_amur_2015-2100_month_25.01.22.mat
 load rivers_data_month/pr_amur_1979-2014_month_25.01.22.mat
 load rivers_data_month/mrro_amur_2015-2100_month_25.01.22.mat
@@ -22,19 +36,10 @@ load rivers_data_month/mrro_amur_1979-2014_month_25.01.22.mat
 load rivers_data_month/mrros_amur_2015-2100_month_25.01.22.mat
 load rivers_data_month/mrros_amur_1979-2014_month_25.01.22.mat
 
-load rivers_data_month/pdo(tas)_1979-2014_month_11.02.22.mat
-load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
 
 
-river_name = 'amur';
-% load ssp_volga15.07.21.mat
-% load hist_volga15.07.21.mat
-% load ssp126+245+585_V1.mat
-%% Surface of full run-off
-% mod = "surf";
-mod = "full";
-% save = true;
-save = false;
+
+
 %%
 list_of_models_126 = list_of_models_126';
 list_of_models_245 = list_of_models_245';
@@ -51,36 +56,197 @@ list_of_models_585 = list_of_models_585';
 % сигнала и аппроксимировать экспонентой, найти значение "декремента" -
 % когда амплитуда падает в е раз, потом пересчитать дельта к по формуле в
 % книге (там будет суммирование не по всему периоду, а по 2*декремент.
+%% convert month data to year data to calculate Wm
 
+P_126_hist_y = month_to_year_data(filter_by_model(P_hist_m, list_of_models_126));
+R_126_hist_y = month_to_year_data(filter_by_model(R_hist_m, list_of_models_126));
+Rs_126_hist_y = month_to_year_data(filter_by_model(Rs_hist_m, list_of_models_126));
+
+P_245_hist_y = month_to_year_data(filter_by_model(P_hist_m, list_of_models_245));
+R_245_hist_y = month_to_year_data(filter_by_model(R_hist_m, list_of_models_245));
+Rs_245_hist_y = month_to_year_data(filter_by_model(Rs_hist_m, list_of_models_245));
+
+P_585_hist_y = month_to_year_data(filter_by_model(P_hist_m, list_of_models_585));
+R_585_hist_y = month_to_year_data(filter_by_model(R_hist_m, list_of_models_585));
+Rs_585_hist_y = month_to_year_data(filter_by_model(Rs_hist_m, list_of_models_585));
 %%
 
-if size(P_585,1) ~= size(R_585,1) || size(P_585,2) ~= size(R_585,2) || size(P_585,1) ~= size(Rs_585,1)|| size(P_585,2) ~= size(Rs_585,2)
-    disp('Problem with P or R or Rs sizes in ssp585');
-end
+P_126_ssp_y = month_to_year_data(P_126_21_m);
+R_126_ssp_y = month_to_year_data(R_126_21_m);
+Rs_126_ssp_y = month_to_year_data(Rs_126_21_m);
+
+P_245_ssp_y = month_to_year_data(P_245_21_m);
+R_245_ssp_y = month_to_year_data(R_245_21_m);
+Rs_245_ssp_y = month_to_year_data(Rs_245_21_m);
+
+P_585_ssp_y = month_to_year_data(P_585_21_m);
+R_585_ssp_y = month_to_year_data(R_585_21_m);
+Rs_585_ssp_y = month_to_year_data(Rs_585_21_m);
+
+
+
+
+
+
+
 
 %% calc Wm
 % weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
-[P_126_w] = calc_norm_all_models(years, P_126);
-[R_126_w] = calc_norm_all_models(years, R_126);
-[Rs_126_w] = calc_norm_all_models(years, Rs_126);
+[P_126_w] = calc_norm_all_models(years_hist, P_126_hist_y );
+[R_126_w] = calc_norm_all_models(years_hist, R_126_hist_y);
+[Rs_126_w] = calc_norm_all_models(years_hist, Rs_126_hist_y);
 
-[P_245_w] = calc_norm_all_models(years, P_245);
-[R_245_w] = calc_norm_all_models(years, R_245);
-[Rs_245_w] = calc_norm_all_models(years, Rs_245);
+[P_245_w] = calc_norm_all_models(years_hist, P_245_hist_y);
+[R_245_w] = calc_norm_all_models(years_hist, R_245_hist_y);
+[Rs_245_w] = calc_norm_all_models(years_hist, Rs_245_hist_y);
 
-[P_585_w] = calc_norm_all_models(years, P_585);
-[R_585_w] = calc_norm_all_models(years, R_585);
-[Rs_585_w] = calc_norm_all_models(years, Rs_585);
+[P_585_w] = calc_norm_all_models(years_hist, P_585_hist_y);
+[R_585_w] = calc_norm_all_models(years_hist, R_585_hist_y);
+[Rs_585_w] = calc_norm_all_models(years_hist, Rs_585_hist_y);
+
+%% Calculating W_nv
+P_w_nv = calc_w_nv(P_hist_m, pdo_hist);
+R_w_nv = calc_w_nv(R_hist_m, pdo_hist);
+Rs_w_nv = calc_w_nv(Rs_hist_m, pdo_hist);
+
+
+weights_nv = P_w_nv.*R_w_nv/sum(P_w_nv.*R_w_nv);
+weights_nv_s = P_w_nv.*Rs_w_nv/sum(P_w_nv.*Rs_w_nv);
+
+%% Calculating Y_f
+
+P_hist_f = calc_y_f(P_hist_m, pdo_hist);
+R_hist_f = calc_y_f(R_hist_m, pdo_hist);
+Rs_hist_f = calc_y_f(Rs_hist_m, pdo_hist);
+
+%%
+P_126_ssp_f = calc_y_f(P_126_21_m, pdo_126_21);
+R_126_ssp_f = calc_y_f(R_126_21_m, pdo_126_21);
+Rs_126_ssp_f = calc_y_f(Rs_126_21_m, pdo_126_21);
+
+P_245_ssp_f = calc_y_f(P_245_21_m, pdo_245_21);
+R_245_ssp_f = calc_y_f(R_245_21_m, pdo_245_21);
+Rs_245_ssp_f = calc_y_f(Rs_245_21_m, pdo_245_21);
+
+P_585_ssp_f = calc_y_f(P_585_21_m, pdo_585_21);
+R_585_ssp_f = calc_y_f(R_585_21_m, pdo_585_21);
+Rs_585_ssp_f = calc_y_f(Rs_585_21_m, pdo_585_21);
+
+%%
+%%
+%% iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+%%
+
+
+
+
+
+
+P_126_hist_f = month_to_year_data(filter_by_model(P_hist_f, list_of_models_126));
+R_126_hist_f = month_to_year_data(filter_by_model(R_hist_f, list_of_models_126));
+Rs_126_hist_f = month_to_year_data(filter_by_model(Rs_hist_f, list_of_models_126));
+
+P_245_hist_f = month_to_year_data(filter_by_model(P_hist_f, list_of_models_245));
+R_245_hist_f = month_to_year_data(filter_by_model(R_hist_f, list_of_models_245));
+Rs_245_hist_f = month_to_year_data(filter_by_model(Rs_hist_f, list_of_models_245));
+
+P_585_hist_f = month_to_year_data(filter_by_model(P_hist_f, list_of_models_585));
+R_585_hist_f = month_to_year_data(filter_by_model(R_hist_f, list_of_models_585));
+Rs_585_hist_f = month_to_year_data(filter_by_model(Rs_hist_f, list_of_models_585));
+%%
+
+P_126_ssp_y_f = month_to_year_data(P_126_ssp_f);
+R_126_ssp_y_f = month_to_year_data(R_126_ssp_f);
+Rs_126_ssp_y_f = month_to_year_data(Rs_126_ssp_f);
+
+P_245_ssp_y_f = month_to_year_data(P_245_ssp_f);
+R_245_ssp_y_f = month_to_year_data(R_245_ssp_f);
+Rs_245_ssp_y_f = month_to_year_data(Rs_245_ssp_f);
+
+P_585_ssp_y_f = month_to_year_data(P_585_ssp_f);
+R_585_ssp_y_f = month_to_year_data(R_585_ssp_f);
+Rs_585_ssp_y_f = month_to_year_data(Rs_585_ssp_f);
+
+
+
+
+
+
+
+
+%% calc Wm with Y_f
+% weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
+[P_126_w_f] = calc_norm_all_models(years_hist, P_126_hist_f );
+[R_126_w_f] = calc_norm_all_models(years_hist, R_126_hist_f);
+[Rs_126_w_f] = calc_norm_all_models(years_hist, Rs_126_hist_f);
+
+[P_245_w_f] = calc_norm_all_models(years_hist, P_245_hist_f);
+[R_245_w_f] = calc_norm_all_models(years_hist, R_245_hist_f);
+[Rs_245_w_f] = calc_norm_all_models(years_hist, Rs_245_hist_f);
+
+[P_585_w_f] = calc_norm_all_models(years_hist, P_585_hist_f);
+[R_585_w_f] = calc_norm_all_models(years_hist, R_585_hist_f);
+[Rs_585_w_f] = calc_norm_all_models(years_hist, Rs_585_hist_f);
+
+%%
+P_126_w_f(2:end,1) = P_126_w(2:end,1);
+R_126_w_f(2:end,1) = R_126_w(2:end,1);
+Rs_126_w_f(2:end,1) = Rs_126_w(2:end,1);
+
+P_245_w_f(2:end,1) = P_245_w(2:end,1);
+R_245_w_f(2:end,1) = R_245_w(2:end,1);
+Rs_245_w_f(2:end,1) = Rs_245_w(2:end,1);
+
+P_585_w_f(2:end,1) = P_585_w(2:end,1);
+R_585_w_f(2:end,1) = R_585_w(2:end,1);
+Rs_585_w_f(2:end,1) = Rs_585_w(2:end,1);
+
+%% Now weights = [w_m,w_tr,w_iav,w_nv,y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
+
+P_126_w_f(:,4) = filter_by_model(P_w_nv', list_of_models_126);
+R_126_w_f(:,4) = filter_by_model(R_w_nv', list_of_models_126);
+Rs_126_w_f(:,4) = filter_by_model(Rs_w_nv', list_of_models_126);
+
+P_245_w_f(:,4) = filter_by_model(P_w_nv', list_of_models_245);
+R_245_w_f(:,4) = filter_by_model(R_w_nv', list_of_models_245);
+Rs_245_w_f(:,4) = filter_by_model(Rs_w_nv', list_of_models_245);
+
+P_585_w_f(:,4) = filter_by_model(P_w_nv', list_of_models_585);
+R_585_w_f(:,4) = filter_by_model(R_w_nv', list_of_models_585);
+Rs_585_w_f(:,4) = filter_by_model(Rs_w_nv', list_of_models_585);
 
 %%
 
-[k_tmp,delta_k_tmp] = my_lin_reg(pdo_hist(1,:),P_hist_m(1,:));
-% [y_tmp_mean,y_tmp_std,k_tmp,delta_k_tmp,delta_y_tmp_std] = lin_reg(P_hist_m(1,:),pdo_hist(1,:));
+% weights = [w_m, w_tr, w_iav, w_nv, w_r, w_p, w_all];
+weights_126 = calc_weights_f(P_126_w_f,R_126_w_f);
+weights_126_s = calc_weights_f(P_126_w_f,Rs_126_w_f);
+
+weights_245 = calc_weights_f(P_245_w_f,R_245_w_f);
+weights_245_s = calc_weights_f(P_245_w_f,Rs_245_w_f);
+
+weights_585 = calc_weights_f(P_585_w_f,R_585_w_f);
+weights_585_s = calc_weights_f(P_585_w_f,Rs_585_w_f);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %%
-figure;
-plot(P_hist_m(1,:));
-hold on
-plot(pdo_hist(1,:)*k_tmp);
+
+% figure;
+% plot(P_hist_m(1,:));
+% hold on
+% plot(pdo_hist(1,:)*k_tmp);
 
 
 %%
@@ -98,11 +264,14 @@ plot(pdo_hist(1,:)*k_tmp);
 % plot(z, P_585(:,1:end-1))
 %%
 
-a = month_to_year_data(runoff_xls);
+% plot(years_hist, P_126(:,1:end-1))
+% figure;
+% 
+% plot(years_hist, P_126_hist_y)
+%%
 
-plot(years, a);
-hold on;
-plot(years,R_126(1,1:end-1), 'o');
+
+
 
 
 
@@ -118,63 +287,63 @@ plot(years,R_126(1,1:end-1), 'o');
 
 
 %%
-
-weights_126 = calc_weights(P_126_w,R_126_w);
-weights_126_s = calc_weights(P_126_w,Rs_126_w);
-
-weights_245 = calc_weights(P_245_w,R_245_w);
-weights_245_s = calc_weights(P_245_w,Rs_245_w);
-
-weights_585 = calc_weights(P_585_w,R_585_w);
-weights_585_s = calc_weights(P_585_w,Rs_585_w);
+% weights = [w_m,w_tr,w_iav,w_r,w_p,w_all];
+% weights_126 = calc_weights(P_126_w,R_126_w);
+% weights_126_s = calc_weights(P_126_w,Rs_126_w);
+% 
+% weights_245 = calc_weights(P_245_w,R_245_w);
+% weights_245_s = calc_weights(P_245_w,Rs_245_w);
+% 
+% weights_585 = calc_weights(P_585_w,R_585_w);
+% weights_585_s = calc_weights(P_585_w,Rs_585_w);
 %% weights for simple mean 
-weights_126_s(:,7) = 1/(size(weights_126_s,1)-1);
-weights_245_s(:,7) = 1/(size(weights_245_s,1)-1);
-weights_585_s(:,7) = 1/(size(weights_585_s,1)-1);
+weights_126_s(:,end+1) = 1/(size(weights_126_s,1)-1);
+weights_245_s(:,end+1) = 1/(size(weights_245_s,1)-1);
+weights_585_s(:,end+1) = 1/(size(weights_585_s,1)-1);
 
-weights_126(:,7) = 1/(size(weights_126,1)-1);
-weights_245(:,7) = 1/(size(weights_245,1)-1);
-weights_585(:,7) = 1/(size(weights_585,1)-1);
+weights_126(:,end+1) = 1/(size(weights_126,1)-1);
+weights_245(:,end+1) = 1/(size(weights_245,1)-1);
+weights_585(:,end+1) = 1/(size(weights_585,1)-1);
 
 %%
 global list_of_weights 
-list_of_weights = {'W_m','W_t_r','W_i_a_v','W_r','W_p','W_a_l_l','W_0'};
+list_of_weights = {'W_m','W_t_r','W_i_a_v','W_n_v','W_r','W_p','W_a_l_l','W_0'};
 list_of_scenarios = {'SSP1-2.6','SSP2-4.5','SSP5-8.5'};
 
 %%
 
-P_126(:,end+1) = P_126_tmp;
-R_126(:,end+1) = R_126_tmp;
-Rs_126(:,end+1) = Rs_126_tmp;
-
-P_245(:,end+1) = P_245_tmp;
-R_245(:,end+1) = R_245_tmp;
-Rs_245(:,end+1) = Rs_245_tmp;
-
-P_585(:,end+1) = P_585_tmp;
-R_585(:,end+1) = R_585_tmp;
-Rs_585(:,end+1) = Rs_585_tmp;
-
-years(end+1) = 2015;
+% P_126(:,end+1) = P_126_tmp;
+% R_126(:,end+1) = R_126_tmp;
+% Rs_126(:,end+1) = Rs_126_tmp;
+% 
+% P_245(:,end+1) = P_245_tmp;
+% R_245(:,end+1) = R_245_tmp;
+% Rs_245(:,end+1) = Rs_245_tmp;
+% 
+% P_585(:,end+1) = P_585_tmp;
+% R_585(:,end+1) = R_585_tmp;
+% Rs_585(:,end+1) = Rs_585_tmp;
+% 
+% years(end+1) = 2015;
 
 %%
 % clc
 if mod == "full"
-    [means_126,u_z_126] = calc_means(weights_126,R_126(2:end,:));
-    [means_245,u_z_245] = calc_means(weights_245,R_245(2:end,:));
-    [means_585,u_z_585] = calc_means(weights_585,R_585(2:end,:));
+    [means_126,u_z_126] = calc_means(weights_126,R_126_hist_f(2:end,:));
+    [means_245,u_z_245] = calc_means(weights_245,R_245_hist_f(2:end,:));
+    [means_585,u_z_585] = calc_means(weights_585,R_585_hist_f(2:end,:));
 
-    [means_126_21,u_z_126_21] = calc_means(weights_126,R_126_21);
-    [means_245_21,u_z_245_21] = calc_means(weights_245,R_245_21);
-    [means_585_21,u_z_585_21] = calc_means(weights_585,R_585_21);
+    [means_126_21,u_z_126_21] = calc_means(weights_126,R_126_ssp_y_f);
+    [means_245_21,u_z_245_21] = calc_means(weights_245,R_245_ssp_y_f);
+    [means_585_21,u_z_585_21] = calc_means(weights_585,R_585_ssp_y_f);
 elseif mod == "surf"
-    [means_126,u_z_126] = calc_means(weights_126_s,Rs_126(2:end,:));
-    [means_245,u_z_245] = calc_means(weights_245_s,Rs_245(2:end,:));
-    [means_585,u_z_585] = calc_means(weights_585_s,Rs_585(2:end,:));
+    [means_126,u_z_126] = calc_means(weights_126_s,Rs_hist_f(2:end,:));
+    [means_245,u_z_245] = calc_means(weights_245_s,Rs_hist_f(2:end,:));
+    [means_585,u_z_585] = calc_means(weights_585_s,Rs_hist_f(2:end,:));
 
-    [means_126_21,u_z_126_21] = calc_means(weights_126_s,Rs_126_21);
-    [means_245_21,u_z_245_21] = calc_means(weights_245_s,Rs_245_21);
-    [means_585_21,u_z_585_21] = calc_means(weights_585_s,Rs_585_21);
+    [means_126_21,u_z_126_21] = calc_means(weights_126_s,Rs_126_ssp_y_f);
+    [means_245_21,u_z_245_21] = calc_means(weights_245_s,Rs_245_ssp_y_f);
+    [means_585_21,u_z_585_21] = calc_means(weights_585_s,Rs_585_ssp_y_f);
 else
     disp('mod error')
 end
@@ -183,15 +352,16 @@ end
 %% calc std
 period = 11; % ----------------------------------------------------------------------------------------------------------------------------
 
-years_full = [years,years_21];
+years_full = [years_hist,years_ssp];
 yrs = years_full(1) + period/2 :1: years_full(end) - period/2;
 
-std_126_s = calc_std(Rs_126,Rs_126_21,period);
-std_245_s = calc_std(Rs_245,Rs_245_21,period);
-std_585_s = calc_std(Rs_585,Rs_585_21,period);
-std_126 = calc_std(R_126,R_126_21,period);
-std_245 = calc_std(R_245,R_245_21,period);
-std_585 = calc_std(R_585,R_585_21,period);
+std_126_s = calc_std(Rs_126_hist_y,Rs_126_ssp_y,period);
+std_245_s = calc_std(Rs_245_hist_y,Rs_245_ssp_y,period);
+std_585_s = calc_std(Rs_585_hist_y,Rs_585_ssp_y,period);
+
+std_126 = calc_std(R_126_hist_y,R_126_ssp_y,period);
+std_245 = calc_std(R_245_hist_y,R_245_ssp_y,period);
+std_585 = calc_std(R_585_hist_y,R_585_ssp_y,period);
 
 
 [std_126_s_means,uuu1] = calc_means(weights_126_s,std_126_s);
@@ -201,8 +371,8 @@ std_585 = calc_std(R_585,R_585_21,period);
 [std_245_means,uuu2] = calc_means(weights_245,std_245);
 [std_585_means,uuu3] = calc_means(weights_585,std_585);
 %% plot std prep
-yrs_etalon = years(1) + period/2 :1: years(end) - period/2;
-var = Rs_126(1,:);
+yrs_etalon = years_hist(1) + period/2 :1: years_hist(end) - period/2;
+var = Rs_126_hist_y(1,:);
 len_of_std = numel(var);
 std_out = zeros(1,len_of_std-period);
 
@@ -232,14 +402,16 @@ for pp = 1:3
     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);
     hold on;
     data_for_plot(:,:) = var_tmp(pp,:,:);
-    for mm = 1:7
+    for mm = 1:8
         plot(yrs,data_for_plot(mm,:),'LineWidth',2,'Color',col_arr(mm,:));
     end
     xlabel('год');
     ylabel('км^3/год');
     grid on;
     plot(yrs_etalon,std_etalon_s,'LineWidth',3,'Color','k');
-%     title(list_of_scenarios(pp));
+    title(list_of_scenarios(pp));
+%     lgd = legend(p1,list_of_weights);
+    legend(list_of_weights);
     axx = gca;
     axx.XLim = [1977 2102];
     if save == true
@@ -283,7 +455,7 @@ end
 
 
 
-for nn = 1:6
+for nn = 1:7
     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .11 .26]);
     
     w_num = nn;
@@ -358,14 +530,14 @@ end
 % ylabel('Total runoff (mrros), km^3/year');
 %% Plot means and std
 if mod == "surf"
-    Plot_res(years,years_21,Rs_585,Rs_585_21,means_585,means_585_21,u_z_585,u_z_585_21);
+    Plot_res(years_hist,years_ssp,Rs_585_hist_y,Rs_585_ssp_y,means_585,means_585_21,u_z_585,u_z_585_21);
 %     title('SSP5-8.5');
     ax = gca;
     if save == true
         exportgraphics(ax,[string(river_name)+"_mean_585_"+mod+".png"]);
     end
     
-    Plot_res(years,years_21,Rs_245,Rs_245_21,means_245,means_245_21,u_z_245,u_z_245_21);
+    Plot_res(years_hist,years_ssp,Rs_245_hist_y,Rs_245_ssp_y,means_245,means_245_21,u_z_245,u_z_245_21);
 %     title('SSP2-4.5');
     ax = gca;
     if save == true
@@ -373,7 +545,7 @@ if mod == "surf"
     end
     
 
-    Plot_res(years,years_21,Rs_126,Rs_126_21,means_126,means_126_21,u_z_126,u_z_126_21);
+    Plot_res(years_hist,years_ssp,Rs_126_hist_y,Rs_126_ssp_y,means_126,means_126_21,u_z_126,u_z_126_21);
 %     title('SSP1-2.6');
     ax = gca;
     if save == true
@@ -388,7 +560,7 @@ if mod == "surf"
 %     end
     
 elseif  mod == "full"
-    Plot_res(years,years_21,R_585,R_585_21,means_585,means_585_21,u_z_585,u_z_585_21);
+    Plot_res(years_hist,years_ssp,R_585_hist_y,R_585_ssp_y,means_585,means_585_21,u_z_585,u_z_585_21);
 %     title('SSP5-8.5');
     ax = gca;
     if save == true
@@ -396,7 +568,7 @@ elseif  mod == "full"
     end
     
 
-    Plot_res(years,years_21,R_245,R_245_21,means_245,means_245_21,u_z_245,u_z_245_21);
+    Plot_res(years_hist,years_ssp,R_245_hist_y,R_245_ssp_y,means_245,means_245_21,u_z_245,u_z_245_21);
 %     title('SSP2-4.5');
     ax = gca;
     if save == true
@@ -404,7 +576,7 @@ elseif  mod == "full"
     end
     
 
-    Plot_res(years,years_21,R_126,R_126_21,means_126,means_126_21,u_z_126,u_z_126_21);
+    Plot_res(years_hist,years_ssp,R_126_hist_y,R_126_ssp_y,means_126,means_126_21,u_z_126,u_z_126_21);
 %     title('SSP1-2.6');
     ax = gca;
     if save == true
@@ -436,14 +608,14 @@ end
 % 
 % save = true;
 if mod == "surf"
-    Plot_smooth(years,years_21,means_585,means_585_21,u_z_585,u_z_585_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_585,means_585_21,u_z_585,u_z_585_21,0.2);
 %     title('SSP5-8.5');
     ax = gca;
     if save == true
         exportgraphics(ax,[string(river_name)+"_mean_585_"+mod+"_smooth.png"]);
     end
     
-    Plot_smooth(years,years_21,means_245,means_245_21,u_z_245,u_z_245_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_245,means_245_21,u_z_245,u_z_245_21,0.2);
 %     title('SSP2-4.5');
     ax = gca;
     if save == true
@@ -451,7 +623,7 @@ if mod == "surf"
     end
     
 
-    Plot_smooth(years,years_21,means_126,means_126_21,u_z_126,u_z_126_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_126,means_126_21,u_z_126,u_z_126_21,0.2);
 %     title('SSP1-2.6');
     ax = gca;
     if save == true
@@ -460,7 +632,7 @@ if mod == "surf"
 
 elseif  mod == "full"
     
-    Plot_smooth(years,years_21,means_585,means_585_21,u_z_585,u_z_585_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_585,means_585_21,u_z_585,u_z_585_21,0.2);
 %     title('SSP5-8.5');
     ax = gca;
     if save == true
@@ -468,7 +640,7 @@ elseif  mod == "full"
     end
     
 
-    Plot_smooth(years,years_21,means_245,means_245_21,u_z_245,u_z_245_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_245,means_245_21,u_z_245,u_z_245_21,0.2);
 %     title('SSP2-4.5');
     ax = gca;
     if save == true
@@ -476,7 +648,7 @@ elseif  mod == "full"
     end
     
 
-    Plot_smooth(years,years_21,means_126,means_126_21,u_z_126,u_z_126_21,0.2);
+    Plot_smooth(years_hist,years_ssp,means_126,means_126_21,u_z_126,u_z_126_21,0.2);
 %     title('SSP1-2.6');
     ax = gca;
     if save == true
@@ -688,30 +860,31 @@ end
 
 function [means,u_z] = calc_means(weights,vars)
 
-number_of_models = size(vars,1);
-means = zeros(7,size(vars,2));
-u_z = means;
-% calc mean
-for z_count = 1 : 7
-    
-    for model_n = 1 : number_of_models
-        mean_tmp = vars(model_n,:)*weights(model_n + 1,z_count);
-        means(z_count,:) = means(z_count,:) + mean_tmp;
-    end
-%     plot(means(z_count,:))
-end
+    number_of_models = size(vars,1);
+    n_of_weights = size(weights,2);
+    means = zeros(n_of_weights,size(vars,2));
+    u_z = means;
+    % calc mean
+    for z_count = 1 : n_of_weights
 
-% calc std
-for z_count = 1 : 7
-    std_tmp = zeros(1,size(vars,2));
-    for model_n = 1 : number_of_models
-        var_tmp = vars(model_n,:);
-        sigma_tmp = std(var_tmp,0,2);
-        std_tmp = std_tmp + (var_tmp.^2 + sigma_tmp^2) * weights(model_n + 1,z_count);
-        
+        for model_n = 1 : number_of_models
+            mean_tmp = vars(model_n,:)*weights(model_n + 1,z_count);
+            means(z_count,:) = means(z_count,:) + mean_tmp;
+        end
+    %     plot(means(z_count,:))
     end
-   u_z(z_count,:) = sqrt(std_tmp - means(z_count,:).^2);
-end
+
+    % calc std
+    for z_count = 1 : n_of_weights
+        std_tmp = zeros(1,size(vars,2));
+        for model_n = 1 : number_of_models
+            var_tmp = vars(model_n,:);
+            sigma_tmp = std(var_tmp,0,2);
+            std_tmp = std_tmp + (var_tmp.^2 + sigma_tmp^2) * weights(model_n + 1,z_count);
+
+        end
+       u_z(z_count,:) = sqrt(std_tmp - means(z_count,:).^2);
+    end
 end
 
 
@@ -733,6 +906,30 @@ w_all = w_all./sum(w_all);
 weights = [w_m,w_tr,w_iav,w_r,w_p,w_all];
 end
 
+function [weights] = calc_weights_f(P_w,R_w)
+w_m = P_w(:,1).*R_w(:,1);
+w_tr = P_w(:,2).*R_w(:,2);
+w_iav = P_w(:,3).*R_w(:,3);
+w_nv = P_w(:,4).*R_w(:,4);
+
+w_r = R_w(:,1).*R_w(:,2).*R_w(:,3).*R_w(:,4);
+w_p = P_w(:,1).*P_w(:,2).*P_w(:,3).*P_w(:,4);
+w_all = w_r.*w_p.*w_nv;
+
+w_m = w_m./sum(w_m);
+w_tr = w_tr./sum(w_tr);
+w_iav = w_iav./sum(w_iav);
+w_nv = w_nv./sum(w_nv);
+
+w_r = w_r./sum(w_r);
+w_p = w_p./sum(w_p);
+w_all = w_all./sum(w_all);
+
+weights = [w_m, w_tr, w_iav, w_nv, w_r, w_p, w_all];
+end
+
+
+
 
 function [weights] = calc_norm_all_models(yrs, data)
 num_of_models = size(data,1);
@@ -752,36 +949,13 @@ w_iav(1) = [];
     for count = 2 : num_of_models
         [y_tmp_mean(count),y_tmp_std(count),k_tmp(count),delta_k_tmp(count),delta_y_tmp_std(count)] = lin_reg(yrs,data(count,:));
 
-        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(count)^2));
-        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(count)^2));
+        w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(1)^2));
+        w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(1)^2));
         w_iav(count) = exp(-((delta_y_tmp_std(count)-delta_y_tmp_std(1))^2)/(2*(teta*delta_y_tmp_std(count))^2));
     end
     weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
 end
-% function [weights] = calc_norm_all_models(yrs, data)
-% num_of_models = size(data,1);
-% 
-% w_m = zeros(num_of_models,1);
-% w_tr = zeros(num_of_models,1);
-% w_iav = zeros(num_of_models,1);
-% teta = (2/(size(data,2)-1))^(1/4);
-% [y_tmp_mean(1),y_tmp_std(1),k_tmp(1),delta_k_tmp(1),delta_y_tmp_std(1)] = lin_reg(yrs,data(1,:));
-% w_m(1) = [];
-% w_tr(1) = [];
-% w_iav(1) = [];
-% 
-% 
-% 
-% 
-%     for count = 2 : num_of_models
-%         [y_tmp_mean(count),y_tmp_std(count),k_tmp(count),delta_k_tmp(count),delta_y_tmp_std(count)] = lin_reg(yrs,data(count,:));
-% 
-%         w_m(count) = exp(-((y_tmp_mean(count)-y_tmp_mean(1))^2)/(2*y_tmp_std(1)^2));
-%         w_tr(count) = exp(-((k_tmp(count)-k_tmp(1))^2)/(2*delta_k_tmp(1)^2));
-%         w_iav(count) = exp(-((delta_y_tmp_std(count)-delta_y_tmp_std(1))^2)/(2*(teta*delta_y_tmp_std(count))^2));
-%     end
-%     weights = [w_m,w_tr,w_iav,y_tmp_mean',y_tmp_std',k_tmp',delta_k_tmp',delta_y_tmp_std'];
-% end
+
 
 function [y_mean,y_std,k,delta_k,delta_y_std] = lin_reg(x,y)
 %           Y=A+B*X
@@ -863,11 +1037,11 @@ delta_k = regcoefstd;
 end
 
 function[output] = month_to_year_data(mon_data)
-    if size(mon_data,1) > 1
+    if size(mon_data,1) > size(mon_data,2)
         mon_data = mon_data';
     end
     n_of_models = size(mon_data, 1);
-    output = zeros(n_of_models, size(mon_data, 2)/12);
+    output = zeros(n_of_models, ceil(size(mon_data, 2)/12));
     year_data_tmp = zeros(n_of_models, 1);
     year_ind = 1;
     month_count = 1;
@@ -884,4 +1058,77 @@ function[output] = month_to_year_data(mon_data)
                 month_count = month_count +1;
     end
 end
+
+function[output] = filter_by_model(input, list_of_models)
+    
+    global list_of_models_hist
+    output = input(logical(cat(2, 1, ismember(string(list_of_models_hist), string(list_of_models)))),:);
+end
+
+function[w_nv] = calc_w_nv(y_var, pc)
+    if size(y_var) ~= size(pc)
+        disp("size error! calc_w_nv function");
+    end
+    n_of_models = size(y_var, 1);
+    a_tmp = zeros(n_of_models, 1);
+    delta_a_tmp = a_tmp;
+    for count = 1: n_of_models
+        [a_tmp(count),delta_a_tmp(count)] = my_lin_reg(pc(count,:),y_var(count,:));
+        w_nv(count) = exp(-((a_tmp(count)-a_tmp(1))^2)/(2*delta_a_tmp(1)^2));
+    end  
+end
+
+
+function[output] = calc_y_f(y_var, pc)
+    if size(y_var) ~= size(pc)
+        disp("size error! calc_y_f function");
+    end    
+    n_of_models = size(y_var, 1);
+    for count = 1: n_of_models
+        [a_tmp,delta_a_tmp] = my_lin_reg(pc(count,:),y_var(count,:));
+        output(count,:) = y_var(count,:) - mean(y_var(count,:)) - a_tmp*pc(count,:);
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
