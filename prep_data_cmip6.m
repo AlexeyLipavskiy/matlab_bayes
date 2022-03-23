@@ -9,14 +9,14 @@ global days_a_month years sec_in_day mesh_square f_k_flipped s_k mask_square lon
     lat_my_mesh mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop path_to_folder
 %% User parameters
 years = 1979:2014;
-river_name = 'amur';
+river_name = 'volga';
 exel_river_name = river_name;
 
 variable_name = 'mrro';
 path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list.xls';
-save_flag = false;
+% save_flag = false;
 save_flag = true;
 %% constants
 sec_in_day = 60*60*24;
@@ -37,6 +37,8 @@ switch river_name
         basin_number = 16;
     case 'ural'
         basin_number = 30;
+    case 'selenga'
+        
     otherwise
         ME = MException('MyComponent:noSuchVariable', 'river name error!');
         throw(ME)
@@ -52,7 +54,7 @@ end
 %% Mask
 
 if string(river_name) == "selenga"
-     path_mask = '../r_Selenga.cno';
+     path_mask = '../basins/r_Selenga.cno';
     selenga_mask = dlmread(path_mask);
     river_mask = selenga_mask;
 else
@@ -204,12 +206,16 @@ disp('pr observed data (GPCP 2.3) done');
 if string(exel_river_name) == "volga"
     path_xls = '../rivers';
     river_xls = xlsread(path_xls,exel_river_name);
-    year_cnt_xls = 0;
-    runoff_xls = NaN * ones(size(years,2),1);
+    year_cnt_xls = 1;
+    runoff_xls = NaN * ones(size(years,2)*12,1);
     ind_firs_year = find(river_xls(:,1) == years(1));
     for year_ind_xls = years
+        runoff_xls((year_cnt_xls-1)*12 + 1: (year_cnt_xls*12)) = ...
+            (river_xls(ind_firs_year + year_cnt_xls - 1, 2:13)...
+            .* sec_in_day .* (days_a_month))./1e9;
 
-        runoff_xls(year_cnt_xls + 1) = sum(river_xls(ind_firs_year + year_cnt_xls,2:13) .* sec_in_day .* (days_a_month));
+%         runoff_xls(year_cnt_xls + 1) = sum(river_xls(ind_firs_year +...
+%             year_cnt_xls,2:13) .* sec_in_day .* (days_a_month));
         year_cnt_xls = year_cnt_xls + 1;
     end
     
@@ -283,7 +289,7 @@ if variable_name == "pr"
     P_hist_m = gpcp_p_month_sum';
     P_hist_m(2:19,:) = var_hist./mask_square;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist',...
             'P_hist_m','list_of_models_hist');
     end 
@@ -291,7 +297,7 @@ elseif variable_name == "mrro"
     R_hist_m = runoff_xls';
     R_hist_m(2:19,:) = var_hist./1e12;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat", 'years_hist',...
             'R_hist_m', 'list_of_models_hist');
     end 
@@ -299,7 +305,7 @@ elseif variable_name == "mrros"
     Rs_hist_m = runoff_xls';
     Rs_hist_m(2:19,:) = var_hist./1e12;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+...
             years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_hist',...
             'Rs_hist_m' ,'list_of_models_hist');
     end 
@@ -330,7 +336,7 @@ if variable_name == "pr"
     P_245_21_m = var_245./mask_square;
     P_585_21_m = var_585./mask_square;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','P_126_21_m'...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','P_126_21_m'...
         ,'list_of_models_126','P_245_21_m','list_of_models_245','P_585_21_m','list_of_models_585');
     end 
 elseif variable_name == "mrro" 
@@ -338,7 +344,7 @@ elseif variable_name == "mrro"
     R_245_21_m = var_245./1e12;
     R_585_21_m = var_585./1e12;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','R_126_21_m'...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','R_126_21_m'...
         ,'list_of_models_126','R_245_21_m','list_of_models_245','R_585_21_m','list_of_models_585');
     end 
 elseif variable_name == "mrros"
@@ -346,7 +352,7 @@ elseif variable_name == "mrros"
     Rs_245_21_m = var_245./1e12;
     Rs_585_21_m = var_585./1e12;
     if save_flag == true
-        save("rivers_data_month\"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','Rs_126_21_m'...
+        save("rivers_data_month/"+variable_name+"_"+river_name+"_"+years(1)+"-"+years(end)+"_month_25.01.22.mat",'years_ssp','Rs_126_21_m'...
         ,'list_of_models_126','Rs_245_21_m','list_of_models_245','Rs_585_21_m','list_of_models_585');
     end 
 end

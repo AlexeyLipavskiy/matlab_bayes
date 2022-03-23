@@ -2,7 +2,7 @@ clear all
 close all
 clc
 %%
-river_name = 'volga';
+river_name = 'selenga';
 
 %% Surface or full run-off
 % mod = "surf";
@@ -36,19 +36,14 @@ load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
 % load rivers_data_month/mrros_amur_2015-2100_month_25.01.22.mat
 % load rivers_data_month/mrros_amur_1979-2014_month_25.01.22.mat
 
-% load rivers_data_month/pr_selenga_2015-2100_month_25.01.22.mat
-% load rivers_data_month/pr_selenga_1979-2014_month_25.01.22.mat
-% load rivers_data_month/mrro_selenga_2015-2100_month_25.01.22.mat
-% load rivers_data_month/mrro_selenga_1979-2014_month_25.01.22.mat
-% load rivers_data_month/mrros_selenga_2015-2100_month_25.01.22.mat
-% load rivers_data_month/mrros_selenga_1979-2014_month_25.01.22.mat
+load rivers_data_month/pr_selenga_2015-2100_month_25.01.22.mat
+load rivers_data_month/pr_selenga_1979-2014_month_25.01.22.mat
+load rivers_data_month/mrro_selenga_2015-2100_month_25.01.22.mat
+load rivers_data_month/mrro_selenga_1979-2014_month_25.01.22.mat
+load rivers_data_month/mrros_selenga_2015-2100_month_25.01.22.mat
+load rivers_data_month/mrros_selenga_1979-2014_month_25.01.22.mat
 
-load rivers_data_month/pr_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/pr_volga_1979-2014_month_25.01.22.mat
-load rivers_data_month/mrro_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/mrro_volga_1979-2014_month_25.01.22.mat
-load rivers_data_month/mrros_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/mrros_volga_1979-2014_month_25.01.22.mat
+
 
 %%
 list_of_models_126 = list_of_models_126';
@@ -709,15 +704,11 @@ end
 
 %%
 
-% scatter(P_hist_m(1,:), pdo_hist(1,:));
-% %%
-% plot(P_hist_m(1,:)/max(P_hist_m(1,:)));
-% hold on
-% plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
-% %%
-% plot(R_hist_m(1,:)/max(R_hist_m(1,:)));
-% hold on
-% plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
+scatter(P_hist_m(1,:), pdo_hist(1,:));
+%%
+plot(P_hist_m(1,:)/max(P_hist_m(1,:)));
+hold on
+plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
 
 
 %%
