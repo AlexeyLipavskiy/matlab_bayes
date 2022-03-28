@@ -198,11 +198,11 @@ hold on
 plot(ind(:,1)/max(ind(:,1)))
 
 %%
-% % Determine which grid points correspond to land:
+%% Determine which grid points correspond to land:
 % [lat,lon] = cdtgrid([1/2 1/2]);
 % land = island(lat,lon);
 % 
-% % Set land values to NaN:
+%% Set land values to NaN:
 % z = zeros(size(lat));
 % z(land) = 1;
 % 
@@ -230,13 +230,13 @@ plot(ind(:,1)/max(ind(:,1)))
 % 
 % load coastlines
 %%
-% path_ocean_borders = '../ocean_borders/goas_v01.shp';
-% ocean_shape = shaperead(path_ocean_borders);
-% %%
-% ocean_shape = ocean_shape(4);
-% ocean_mask(:,1) = ocean_shape.X;
-% ocean_mask(:,2) = ocean_shape.Y;
-% %%
+path_ocean_borders = '../basins/ocean_borders/goas_v01.shp';
+ocean_shape = shaperead(path_ocean_borders);
+%%
+ocean_shape = ocean_shape(4);
+ocean_mask(:,1) = ocean_shape.X;
+ocean_mask(:,2) = ocean_shape.Y;
+%%
 % figure;
 % geoplot(ocean_mask(:,2),ocean_mask(:,1));
 % % geoplot(north_atlantic_mask(:,2),north_atlantic_mask(:,1),'.');

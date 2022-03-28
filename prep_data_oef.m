@@ -23,9 +23,17 @@ save_flag = false;
 % days_a_month = [31,28.25,31,30,31,30,31,31,30,31,30,31];
 % sst_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_187001-202112.nc
 %% Mask
-
+load rivers_data_year/nor-20_atlan_mask_0.5_shift.mat
 load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
+%%
+imagesc(lon_mask,lat_mask, f_k_north_atlantic');
+borders
+set(gca,'YDir','normal');
 
+% imagesc(lon_mask,lat_mask, f_k_north_pacific');
+% borders
+% set(gca,'YDir','normal');
+%%
 [lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
 mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
 
