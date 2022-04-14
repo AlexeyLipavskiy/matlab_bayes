@@ -12,10 +12,10 @@ weights_list = [1, 2, 3, 4, 5, 6, 7];
 %%
 % load hist_amur13.07.21.mat% ____________________________________________
 % load ssp_amur13.07.21.mat
-load rivers_data_year/hist_amur_29.10.21.mat% ____________________________________________
-load rivers_data_year/ssp_amur_29.10.21.mat
+load rivers_data_year/hist_selenga_29.10.21.mat% ____________________________________________
+load rivers_data_year/ssp_selenga_29.10.21.mat
 
-river_name = 'amur';
+river_name = 'selenga';
 % load ssp_volga15.07.21.mat
 % load hist_volga15.07.21.mat
 % load ssp126+245+585_V1.mat
@@ -190,7 +190,7 @@ weights_585(:,7) = 1/(size(weights_585,1)-1);
 
 %%
 global list_of_weights 
-list_of_weights = {'W_m','W_t_r','W_i_a_v','W_r','W_p','W_a_l_l','W_0'};
+list_of_weights = {'W_m','W_t_r','W_i_a_v','W_R','W_P','W_a_l_l','W_0'};
 list_of_scenarios = {'SSP1-2.6','SSP2-4.5','SSP5-8.5'};
 
 %%
@@ -268,6 +268,11 @@ end
 %% plot std
 set(0,'DefaultAxesFontSize',20,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman');
+vf = 1.35; % vertical factor. Adjust manually
+dy = .55; % horizontal offset. Adjust manually
+
+
+
 if mod == "surf"
     var_tmp(1,:,:) = std_126_s_means;
     var_tmp(2,:,:) = std_245_s_means;
@@ -281,21 +286,28 @@ else
 end
     
 for pp = 1:3
-    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);
+    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .38 .55]);
     hold on;
     data_for_plot(:,:) = var_tmp(pp,:,:);
     for mm = 1:7
         plot(yrs,data_for_plot(mm,:),'LineWidth',2,'Color',col_arr(mm,:));
     end
-    xlabel('год');
-    ylabel('км^3/год');
-    grid on;
     plot(yrs_etalon,std_etalon_s,'LineWidth',3,'Color','k');
+%     xlabel('год');
+%     y_lab = ylabel('км^3/год');
+    BY=get(gca,'YTick');
+    BX=get(gca,'XTick');
+    ylabel('км^3/год','Rotation',0,'Position',[BX(1) BY(size(BY,2))+ceil((BY(2)-BY(1))/5)-0.9])
+    grid on;
+    
 %     title(list_of_scenarios(pp));
     axx = gca;
     axx.XLim = [1977 2102];
+   
+    
     if save == true
-        exportgraphics(axx,[string(river_name)+"_"+string(list_of_scenarios(pp))+"_std_"+string(period)+"_years_"+mod+".png"])
+        exportgraphics(axx,[string(river_name)+"_"+string(...
+            list_of_scenarios(pp))+"_std_"+string(period)+"_years_"+mod+".png"])
     end
 end
 % close all;
@@ -615,7 +627,7 @@ set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman');
 % ylabel('км^3/год');
 % grid on;
 
-figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);
+figure('Units', 'normalized', 'OuterPosition', [.2 .2 .38 .55]); %win
 hold on;
 p1 = plot([years_hist,years_ssp],[var_hist(2:end,:),var_ssp],'Color',[0.5 0.5 0.5]);
 % p1 = plot(years_ssp,var_ssp,'Color',[0.5 0.5 0.5]);
@@ -636,14 +648,22 @@ plot(years_hist,var_hist(1,:),'LineWidth',3,'Color','k');
 
 % xlabel('years');
 % ylabel('surface runoff (mrros), km^3/year');
-xlabel('год');
-ylabel('км^3/год');
+% xlabel('год');
+% ylabel('км^3/год');
+
+
+
 grid on;
 ax = gca;
 ax.FontSmoothing = 'on';
 ax.XLim = [years_hist(1)-2 years_ssp(end)+2];
 % ax.XLim = [years_ssp(1)-1 years_ssp(end)+1];
 % ax.YLim = [0 90];
+    BY=get(gca,'YTick');
+    BX=get(gca,'XTick');
+    ylabel('км^3/год','Rotation',0,'Position',[BX(1)-2 BY(size(BY,2))+ceil((BY(2)-BY(1))/5)])
+
+
 end
 
 

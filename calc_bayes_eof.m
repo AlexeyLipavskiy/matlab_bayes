@@ -8,8 +8,8 @@ river_name = 'volga';
 % mod = "surf";
 mod = "full";
 
-% save = true;
-save = false;
+save = true;
+% save = false;
 
 %%
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
@@ -28,6 +28,9 @@ weights_list = [1, 2, 3, 4, 5, 6, 7, 8];
 
 load rivers_data_month/pdo(tas)_1979-2014_month_11.02.22.mat
 load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
+
+load rivers_data_month/nao_cut(psl)_1979-2014_month_11.02.22.mat
+load rivers_data_month/nao_cut(psl)_2015-2100_month_11.02.22.mat
 
 % load rivers_data_month/pr_amur_2015-2100_month_25.01.22.mat
 % load rivers_data_month/pr_amur_1979-2014_month_25.01.22.mat
@@ -409,8 +412,8 @@ else
 end
     
 for pp = 1:3
-%     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);%win
-    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .5 .6]);%mac
+    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);%win
+%     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .5 .6]);%mac
     hold on;
     data_for_plot(:,:) = var_tmp(pp,:,:);
     for mm = 1:8
@@ -467,8 +470,8 @@ end
 
 
 for nn = 1:7
-%     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .11 .26]);%win
-    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .18 .38]);%mac
+    figure('Units', 'normalized', 'OuterPosition', [.2 .2 .11 .26]);%win
+%     figure('Units', 'normalized', 'OuterPosition', [.2 .2 .18 .38]);%mac
     w_num = nn;
 %     X = categorical(list_of_models_585);
 %     X = reordercats(X,list_of_models_585);
@@ -759,8 +762,8 @@ set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman');
 % ylabel('км^3/год');
 % grid on;
 
-% figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);%win
-figure('Units', 'normalized', 'OuterPosition', [.2 .2 .5 .6]);%mac
+figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);%win
+% figure('Units', 'normalized', 'OuterPosition', [.2 .2 .5 .6]);%mac
 hold on;
 p1 = plot([years_hist,years_ssp],[var_hist(2:end,:),var_ssp],'Color',[0.5 0.5 0.5]);
 % p1 = plot(years_ssp,var_ssp,'Color',[0.5 0.5 0.5]);
@@ -856,8 +859,9 @@ set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman');
 % ylabel('км^3/год');
 % grid on;
 
+figure('Units', 'normalized', 'OuterPosition', [.2 .2 .28 .4]);%win
+% figure('Units', 'normalized', 'OuterPosition', [.2 .2 .5 .6]);%mac
 
-figure('Units', 'normalized', 'OuterPosition', [.2 .2 .4 .6]);
 hold on;
 
 for nn = 1:6
