@@ -63,76 +63,94 @@ list_tmp_file = list_tmp_file(3:end,:);
 
 
 %%
-years = 2015:2100;
-% %     SSP_126
-list_ssp126_models = list_tmp_file(:,7);
-list_ssp126_marks = list_tmp_file(:,8);
-[list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
-
-% %     SSP_245
-list_ssp245_models = list_tmp_file(:,7);
-list_ssp245_marks = list_tmp_file(:,8);
-[list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
-
-% %     SSP_585
-list_ssp585_models = list_tmp_file(:,10);
-list_ssp585_marks = list_tmp_file(:,11);
-[list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
-
-%%
-years_ssp = years;
-pdo_126_21 = var_126;
-pdo_245_21 = var_245;
-pdo_585_21 = var_585;
-%%
-% save_flag = true;
-if save_flag == true
-    save("rivers_data_month\"+"pdo("+variable_name+")_"+years(1)+"-"+years(end)+"_month_11.02.22.mat",'years_ssp','pdo_126_21'...
-    ,'list_of_models_126','pdo_245_21','list_of_models_245','pdo_585_21','list_of_models_585');
-end
-
-
-%%     hist
-% years = 1979:2014;
+% years = 2015:2100;
+% % %     SSP_126
+% list_ssp126_models = list_tmp_file(:,7);
+% list_ssp126_marks = list_tmp_file(:,8);
+% [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
 % 
-% list_hist_models = list_tmp_file(:,1);
-% list_hist_marks = list_tmp_file(:,2);
-% [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
+% % %     SSP_245
+% list_ssp245_models = list_tmp_file(:,7);
+% list_ssp245_marks = list_tmp_file(:,8);
+% [list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
+% 
+% %%     SSP_585
+% list_ssp585_models = list_tmp_file(:,10);
+% list_ssp585_marks = list_tmp_file(:,11);
+% [list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
+% 
 % %%
-% years_hist = years;
-% % pdo_hist = pc_pdo_cut;    КОСТЫЛЬ
-% % pdo_hist(2:19,:) = var_hist;
-% 
-% nao_hist = var_hist;
+% years_ssp = years;
+% nao_126_21 = var_126;
+% nao_245_21 = var_245;
+% nao_585_21 = var_585;
 % %% modification of nao
-% %using only 1,2,3,12 months
-% inds = 4:11;
-% for n = 1:numel(years)
-%     ind_to_cut((n-1)*numel(inds) + 1 : n*numel(inds)) = inds + (n-1)*12;
-%     
-% end
-% %%
-% nao_hist_cut = nao_hist;
-% nao_hist_cut(:,ind_to_cut) = 0;
-% plot(nao_hist_cut(1,:))
-% hold on;
-% plot(nao_hist(1,:))
 % 
+% 
+% nao_126_21_cut = nao_126_21;
+% nao_245_21_cut = nao_245_21;
+% nao_585_21_cut = nao_585_21;
+% 
+% 
+% nao_126_21_cut(:,ind_to_cut) = 0;
+% nao_245_21_cut(:,ind_to_cut) = 0;
+% nao_585_21_cut(:,ind_to_cut) = 0;
 % 
 % 
 % %%
 % % save_flag = true;
 % if save_flag == true
-%     save("rivers_data_month\"+"nao("+variable_name+")_"+years(1)+"-"+years(end)+"_month_11.02.22.mat",'years_hist','nao_hist'...
-%     ,'list_of_models_hist');
+%     save("rivers_data_month\"+"nao_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_ssp','nao_126_21_cut'...
+%     ,'list_of_models_126','nao_245_21_cut','list_of_models_245','nao_585_21_cut','list_of_models_585');
 % end
-% disp("-----------------------DONE --------------------------------------");
-% %%
-% 
-% if save_flag == true
-%     save("rivers_data_month\"+"nao_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_11.02.22.mat",'years_hist','nao_hist_cut'...
-%     ,'list_of_models_hist');
-% end
+
+
+%%     hist
+years = 1979:2014;
+
+list_hist_models = list_tmp_file(:,1);
+list_hist_marks = list_tmp_file(:,2);
+[list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
+%%
+years_hist = years;
+% pdo_hist = pc_pdo_cut;    КОСТЫЛЬ
+% pdo_hist(2:19,:) = var_hist;
+
+
+
+load index.mat
+nao_hist = nao(349:780)';
+nao_hist(2:19,:) = var_hist;
+
+%% modification of nao
+%using only 1,2,3,12 months
+inds = 4:11;
+for n = 1:numel(years)
+    ind_to_cut((n-1)*numel(inds) + 1 : n*numel(inds)) = inds + (n-1)*12;
+    
+end
+%%
+nao_hist_cut = nao_hist;
+nao_hist_cut(:,ind_to_cut) = 0;
+plot(nao_hist_cut(1,:))
+hold on;
+plot(nao_hist(1,:))
+
+
+
+%%
+% save_flag = true;
+if save_flag == true
+    save("rivers_data_month\"+"nao("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_hist','nao_hist'...
+    ,'list_of_models_hist');
+end
+disp("-----------------------DONE --------------------------------------");
+%%
+
+if save_flag == true
+    save("rivers_data_month\"+"nao_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_hist','nao_hist_cut'...
+    ,'list_of_models_hist');
+end
 
 
 

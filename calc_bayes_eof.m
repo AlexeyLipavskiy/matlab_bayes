@@ -29,8 +29,8 @@ weights_list = [1, 2, 3, 4, 5, 6, 7, 8];
 load rivers_data_month/pdo(tas)_1979-2014_month_11.02.22.mat
 load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
 
-load rivers_data_month/nao_cut(psl)_1979-2014_month_11.02.22.mat
-load rivers_data_month/nao_cut(psl)_2015-2100_month_11.02.22.mat
+load rivers_data_month/nao_cut(psl)_1979-2014_month_18.04.22.mat
+load rivers_data_month/nao_cut(psl)_2015-2100_month_18.04.22.mat
 
 % load rivers_data_month/pr_amur_2015-2100_month_25.01.22.mat
 % load rivers_data_month/pr_amur_1979-2014_month_25.01.22.mat
@@ -118,32 +118,47 @@ Rs_585_ssp_y = month_to_year_data(Rs_585_21_m);
 [Rs_585_w] = calc_norm_all_models(years_hist, Rs_585_hist_y);
 
 %% Calculating W_nv
-P_w_nv = calc_w_nv(P_hist_m, pdo_hist);
-R_w_nv = calc_w_nv(R_hist_m, pdo_hist);
-Rs_w_nv = calc_w_nv(Rs_hist_m, pdo_hist);
+% P_w_nv = calc_w_nv(P_hist_m, pdo_hist);
+% R_w_nv = calc_w_nv(R_hist_m, pdo_hist);
+% Rs_w_nv = calc_w_nv(Rs_hist_m, pdo_hist);
 
+P_w_nv = calc_w_nv(P_hist_m, nao_hist_cut);
+R_w_nv = calc_w_nv(R_hist_m, nao_hist_cut);
+Rs_w_nv = calc_w_nv(Rs_hist_m, nao_hist_cut);
 
 weights_nv = P_w_nv.*R_w_nv/sum(P_w_nv.*R_w_nv);
 weights_nv_s = P_w_nv.*Rs_w_nv/sum(P_w_nv.*Rs_w_nv);
 
 %% Calculating Y_f
 
-P_hist_f = calc_y_f(P_hist_m, pdo_hist);
-R_hist_f = calc_y_f(R_hist_m, pdo_hist);
-Rs_hist_f = calc_y_f(Rs_hist_m, pdo_hist);
+P_hist_f = calc_y_f(P_hist_m, nao_hist_cut);
+R_hist_f = calc_y_f(R_hist_m, nao_hist_cut);
+Rs_hist_f = calc_y_f(Rs_hist_m, nao_hist_cut);
 
 %%
-P_126_ssp_f = calc_y_f(P_126_21_m, pdo_126_21);
-R_126_ssp_f = calc_y_f(R_126_21_m, pdo_126_21);
-Rs_126_ssp_f = calc_y_f(Rs_126_21_m, pdo_126_21);
+% P_126_ssp_f = calc_y_f(P_126_21_m, pdo_126_21);
+% R_126_ssp_f = calc_y_f(R_126_21_m, pdo_126_21);
+% Rs_126_ssp_f = calc_y_f(Rs_126_21_m, pdo_126_21);
+% 
+% P_245_ssp_f = calc_y_f(P_245_21_m, pdo_245_21);
+% R_245_ssp_f = calc_y_f(R_245_21_m, pdo_245_21);
+% Rs_245_ssp_f = calc_y_f(Rs_245_21_m, pdo_245_21);
+% 
+% P_585_ssp_f = calc_y_f(P_585_21_m, pdo_585_21);
+% R_585_ssp_f = calc_y_f(R_585_21_m, pdo_585_21);
+% Rs_585_ssp_f = calc_y_f(Rs_585_21_m, pdo_585_21);
 
-P_245_ssp_f = calc_y_f(P_245_21_m, pdo_245_21);
-R_245_ssp_f = calc_y_f(R_245_21_m, pdo_245_21);
-Rs_245_ssp_f = calc_y_f(Rs_245_21_m, pdo_245_21);
+P_126_ssp_f = calc_y_f(P_126_21_m, nao_126_21_cut);
+R_126_ssp_f = calc_y_f(R_126_21_m, nao_126_21_cut);
+Rs_126_ssp_f = calc_y_f(Rs_126_21_m, nao_126_21_cut);
 
-P_585_ssp_f = calc_y_f(P_585_21_m, pdo_585_21);
-R_585_ssp_f = calc_y_f(R_585_21_m, pdo_585_21);
-Rs_585_ssp_f = calc_y_f(Rs_585_21_m, pdo_585_21);
+P_245_ssp_f = calc_y_f(P_245_21_m, nao_245_21_cut);
+R_245_ssp_f = calc_y_f(R_245_21_m, nao_245_21_cut);
+Rs_245_ssp_f = calc_y_f(Rs_245_21_m, nao_245_21_cut);
+
+P_585_ssp_f = calc_y_f(P_585_21_m, nao_585_21_cut);
+R_585_ssp_f = calc_y_f(R_585_21_m, nao_585_21_cut);
+Rs_585_ssp_f = calc_y_f(Rs_585_21_m, nao_585_21_cut);
 
 %%
 %%
@@ -712,15 +727,15 @@ end
 
 %%
 
-% scatter(P_hist_m(1,:), pdo_hist(1,:));
+% scatter(P_hist_m(1,:), nao_hist_cut(1,:));
 % %%
-% plot(P_hist_m(1,:)/max(P_hist_m(1,:)));
-% hold on
-% plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
-% %%
-% plot(R_hist_m(1,:)/max(R_hist_m(1,:)));
-% hold on
-% plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
+plot(P_hist_m(1,:)/max(P_hist_m(1,:)));
+hold on
+plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
+%%
+plot(R_hist_m(1,:)/max(R_hist_m(1,:)));
+hold on
+plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
 
 
 %%
