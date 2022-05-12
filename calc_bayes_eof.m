@@ -8,14 +8,15 @@ river_name = 'volga';
 % mod = "surf";
 mod = "full";
 
-save = true;
-% save = false;
+% save = true;
+save = false;
 
 %%
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',14,'DefaultTextFontName','Times New Roman');
 global col_arr weights_list list_of_models_hist
-col_arr = ['#0072BD';'#D95319';'#EDB120';'#7E2F8E';'#77AC30';'#4DBEEE';'#A2142F';'#00FF00'];
+col_arr = ['#0072BD';'#D95319';'#EDB120';'#7E2F8E';'#77AC30';'#4DBEEE';...
+    '#A2142F';'#00FF00'];
 % weights_list = [1, 6, 7];
 weights_list = [1, 2, 3, 4, 5, 6, 7, 8];
 % figure('Units', 'normalized', 'OuterPosition', [.3 .3 .4 .4]);
@@ -736,7 +737,13 @@ plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
 plot(R_hist_m(1,:)/max(R_hist_m(1,:)));
 hold on
 plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
+%%
+[a,b] = my_lin_reg(nao_hist_cut(1,:), P_hist_m(1,:));
+ttt = linspace(1979, 2014, 432);
 
+plot(ttt, nao_hist_cut);
+figure;
+plot(ttt, P_hist_m);
 
 %%
 % 
