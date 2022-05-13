@@ -742,8 +742,11 @@ plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
 ttt = linspace(1979, 2014, 432);
 
 plot(ttt, nao_hist_cut);
+hold on
+plot(ttt, nao_hist_cut(1,:),'LineWidth',3,'Color','k')
 figure;
 plot(ttt, P_hist_m);
+
 
 %%
 % 

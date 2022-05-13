@@ -253,9 +253,46 @@
 % z = 2015:2100;
 % plot(z, output2)
 
+%%
+a = ncinfo('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
 
+b = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','SLP');
+lat = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lat');
+lon = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lon');
+%%
+imagesc(lat, lon, b')
 
+%%
+merra2_years = 1981:1983;
+path_to_merra2_folder = '../Merra2/';
 
+year_counter = 0;
+merra2_psl_tmp = zeros(576, 361);
+merra2_psl_month_sum = zeros(12*size(years,2),1);
+lat_from_file = ncread(path_merra2_tmp,'lat');
+lon_from_file = ncread(path_merra2_tmp,'lon');
+%%
+for year_ind_mrros = merra2_years
+    ls_tmp = dir(fullfile(path_to_merra2_folder,num2str(year_ind_mrros)));
+    
+    for month_ind = 1 : 12     
+        path_merra2_tmp = strcat(path_to_merra2_folder,num2str(...
+            year_ind_mrros),'/',ls_tmp(month_ind+2).name);
+        merra2_psl_tmp(:,:) = ncread(path_merra2_tmp,'PSL');                                                         % mm/day  
+
+        [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(...
+            lon_from_file,lat_from_file);  % different files have diff mesh
+ 
+        merra2_psl_month_sum(12*year_counter + month_ind) = ...
+            cut_and_interpolate(merra2_psl_tmp,...
+            lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind)/...
+            sec_in_day/mask_square;
+        
+    end
+    year_counter = year_counter + 1;
+end
+% overall units are mm/year
+disp('pr observed data (GPCP 2.3) done');
 
 
 
