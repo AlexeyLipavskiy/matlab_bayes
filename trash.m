@@ -252,70 +252,114 @@
 % end
 % z = 2015:2100;
 % plot(z, output2)
-
 %%
+% clear all;
+% %%
 a = ncinfo('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
+% 
+% b = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','SLP');
+% lat = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lat');
+% lon = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lon');
+% %%
+% imagesc(lat, lon, b')
+% 
+% %%
+% % mask_square = 1;
+% merra2_years = 1980:2014;
+% path_to_merra2_folder = '../Merra2/';
+% 
+% year_counter = 0;
+% merra2_psl_tmp = zeros(576, 361);
+% merra2_psl_month_sum = zeros(12*size(merra2_years,2),1);
+% lat_from_file = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lat');
+% lon_from_file = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lon');
+% ls_tmp = dir(path_to_merra2_folder);
+% 
+% %%
+% for year_ind = merra2_years
+%     
+%     
+%     for month_ind = 1 : 12     
+%         path_merra2_tmp = strcat(path_to_merra2_folder, ls_tmp(year_counter*12 + month_ind + 2).name);
+%         merra2_psl_tmp(:,:) = ncread(path_merra2_tmp,'SLP');                                                         % mm/day  
+% 
+%         [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(...
+%             lon_from_file,lat_from_file);  % different files have diff mesh
+%  
+%         merra2_psl_month_sum(12*year_counter + month_ind) = ...
+%             cut_and_interpolate(merra2_psl_tmp,...
+%             lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind)/...
+%             sec_in_day/mask_square;
+%         
+%     end
+%     year_counter = year_counter + 1;
+% end
+% % overall units are mm/year
+% disp('pr observed data (GPCP 2.3) done');
 
-b = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','SLP');
-lat = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lat');
-lon = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lon');
-%%
-imagesc(lat, lon, b')
 
-%%
-merra2_years = 1981:1983;
-path_to_merra2_folder = '../Merra2/';
 
-year_counter = 0;
-merra2_psl_tmp = zeros(576, 361);
-merra2_psl_month_sum = zeros(12*size(years,2),1);
-lat_from_file = ncread(path_merra2_tmp,'lat');
-lon_from_file = ncread(path_merra2_tmp,'lon');
-%%
-for year_ind_mrros = merra2_years
-    ls_tmp = dir(fullfile(path_to_merra2_folder,num2str(year_ind_mrros)));
-    
-    for month_ind = 1 : 12     
-        path_merra2_tmp = strcat(path_to_merra2_folder,num2str(...
-            year_ind_mrros),'/',ls_tmp(month_ind+2).name);
-        merra2_psl_tmp(:,:) = ncread(path_merra2_tmp,'PSL');                                                         % mm/day  
 
-        [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(...
-            lon_from_file,lat_from_file);  % different files have diff mesh
- 
-        merra2_psl_month_sum(12*year_counter + month_ind) = ...
-            cut_and_interpolate(merra2_psl_tmp,...
-            lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind)/...
-            sec_in_day/mask_square;
-        
-    end
-    year_counter = year_counter + 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function [lon_cut,lat_cut,lon_cut_ind,lat_cut_ind] = find_cut_points(given_lon,given_lat)
+%   Input vars are lon and lat of a given file. Using coordinates of
+%   borders of my_grid (defined by mask) cut_points are found to then cut from
+%   given file. Cut points have to be outside the my_mesh area to perform
+%   interpolation
+global mesh_b_x_start mesh_b_x_stop mesh_b_y_start mesh_b_y_stop
+lon_start = mesh_b_x_start;
+lon_stop = mesh_b_x_stop;
+lat_start = mesh_b_y_start;
+lat_stop = mesh_b_y_stop;
+
+given_mesh_step_lon =  given_lon(2) - given_lon(1);
+given_mesh_step_lat =  given_lat(2) - given_lat(1);
+
+lon_cut_start_ind = find(given_lon < lon_start,1,'last');
+lon_cut_stop_ind = find(given_lon > lon_stop,1,'first');
+lat_cut_start_ind = find(given_lat < lat_start,1,'last');
+lat_cut_stop_ind = find(given_lat > lat_stop,1,'first');
+
+lon_cut_start_value = given_lon(lon_cut_start_ind);
+lon_cut_stop_value = given_lon(lon_cut_stop_ind);
+lat_cut_start_value = given_lat(lat_cut_start_ind);
+lat_cut_stop_value = given_lat(lat_cut_stop_ind);
+
+[lon_cut,lat_cut] = ndgrid(lon_cut_start_value:given_mesh_step_lon:lon_cut_stop_value,lat_cut_start_value:given_mesh_step_lat:lat_cut_stop_value+0.001);
+
+lon_cut_ind = lon_cut_start_ind : lon_cut_stop_ind;
+lat_cut_ind = lat_cut_start_ind : lat_cut_stop_ind;
 end
-% overall units are mm/year
-disp('pr observed data (GPCP 2.3) done');
 
 
+function [var_month_sum] = cut_and_interpolate(var_month,lon_ind_cmip6,lat_ind_cmip6,lon_cmip6,lat_cmip6,month_ind)
+global days_a_month sec_in_day f_k_flipped s_k lon_my_mesh lat_my_mesh
+  
+var_month_cut(:,:) = var_month(lon_ind_cmip6,lat_ind_cmip6);                                    % cut required part
 
+nans = isnan(var_month_cut);                                                                    % find nans in file and replace it with a 0
+var_month_cut(nans == 1) = 0;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int_obj = griddedInterpolant(lon_cmip6,lat_cmip6,var_month_cut(:,:));                             % create interpolate object   
+var_month_cut_int(:,:) = int_obj(lon_my_mesh,lat_my_mesh);                                        % cutted part interpolated on my new mesh
+var_month_cut_int = var_month_cut_int .* f_k_flipped' .* s_k';                                  % flow in the mask
+var_month_sum = sum(var_month_cut_int,'all')*days_a_month(month_ind)*sec_in_day;                % summ of flow for a month
+end
