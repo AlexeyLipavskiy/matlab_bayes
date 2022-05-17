@@ -351,7 +351,7 @@ ind_cut = ind(361:780,:);
 
 %%
 [cor,p_val] = corr(pc_masked_tmp',ind_cut);
-cor2 = corrcoef(pc_masked_tmp(2,:)',ind_cut(:,1));
+cor2 = corrcoef(pc_masked_tmp(1,:)',ind_cut(:,2));
 cor_test = corr(ind_cut, ind_cut);
 
 
