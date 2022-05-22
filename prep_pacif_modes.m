@@ -252,13 +252,33 @@ end
 % overall units are mm/year
 disp('psl data done');
 %%
+
+year_counter = 0;
+for year_ind = merra2_years
+    
+    
+    for month_ind = 1 : 12     
+        path_merra2_tmp = strcat(path_to_merra2_folder, ls_tmp(year_counter*12 + month_ind + 2).name);
+%         psl(:,:, year_counter*12 + month_ind) = ncread(path_merra2_tmp,'SLP');    
+        psl_dt(year_counter*12 + month_ind) = ncread(path_merra2_tmp,'time'); 
+        disp(year_counter*12 + month_ind);
+        
+    end
+    year_counter = year_counter + 1;
+end
+
+%%
 imagesc(psl(:,:,1));
 %%
 psl_t = double(psl_dt + datenum(1980,1,0));
 psl_dt_norm = datetime(1980,1,0,'Format','yyyy-MM') + caldays(ceil(psl_dt));
 %%
-psl_ds = deseason(psl, psl_t);
-psl_ds_dt = detrend(psl_ds, psl_t);
+% psl_ds = deseason(psl, psl_t);
+% psl_ds_dt = detrend(psl_ds, psl_t);
+%kostyl
+psl_ds = deseason(psl, kos_t);
+psl_ds_dt = detrend3(psl_ds, kos_t);
+
 %%
 load rivers_data_year/north_atlantic_mask.mat
 
@@ -335,7 +355,7 @@ mask_na = logical(mask1);
 %%
 psl_ds_masked = zeros(size(psl));
 for v = 1:size(psl,3)
-    psl_ds_masked(:,:,v) = psl(:,:,v).*mask1;
+    psl_ds_masked(:,:,v) = psl_ds_dt(:,:,v).*mask1;
 end
 %%
 imagesc(lon_from_file, lat_from_file, psl_ds_masked(:,:,2)')
@@ -351,13 +371,33 @@ ind_cut = ind(361:780,:);
 
 %%
 [cor,p_val] = corr(pc_masked_tmp',ind_cut);
-cor2 = corrcoef(pc_masked_tmp(1,:)',ind_cut(:,2));
+cor2 = corrcoef(pc_masked_tmp(1,:)',ind_cut(:,1));
 cor_test = corr(ind_cut, ind_cut);
 
+%%
+
+plot(pc_masked_tmp(1,:))
+%%
 
 
 
+nao_hist_cut(:, 421:end) = [];
+nao_hist_cut(:,ind_to_cut) = 0;
+%%
+nao_hist_cut(1,:) = pc_masked_tmp(1,:);
+%%
+save("rivers_data_month/"+"nao_cut(psl)_1980-2014_month_22.05.22.mat",'years_hist','nao_hist_cut'...
+,'list_of_models_hist');
 
+%%
+
+clear all;
+%%
+years_hist(1) = [];
+Rs_hist_m(:,421:end) = [];
+%%
+save("rivers_data_month/mrros_volga_1980-2014_month_22.05.22.mat", 'years_hist',...
+    'Rs_hist_m', 'list_of_models_hist');
 
 
 

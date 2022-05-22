@@ -8,8 +8,8 @@ river_name = 'volga';
 % mod = "surf";
 mod = "full";
 
-% save = true;
-save = false;
+save = true;
+% save = false;
 
 %%
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
@@ -30,7 +30,8 @@ weights_list = [1, 2, 3, 4, 5, 6, 7, 8];
 load rivers_data_month/pdo(tas)_1979-2014_month_11.02.22.mat
 load rivers_data_month/pdo(tas)_2015-2100_month_11.02.22.mat
 
-load rivers_data_month/nao_cut(psl)_1979-2014_month_18.04.22.mat
+% load rivers_data_month/nao_cut(psl)_1979-2014_month_18.04.22.mat
+load rivers_data_month/nao_cut(psl)_1980-2014_month_22.05.22.mat
 load rivers_data_month/nao_cut(psl)_2015-2100_month_18.04.22.mat
 
 % load rivers_data_month/pr_amur_2015-2100_month_25.01.22.mat
@@ -48,11 +49,15 @@ load rivers_data_month/nao_cut(psl)_2015-2100_month_18.04.22.mat
 % load rivers_data_month/mrros_selenga_1979-2014_month_25.01.22.mat
 
 load rivers_data_month/pr_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/pr_volga_1979-2014_month_25.01.22.mat
+% load rivers_data_month/pr_volga_1979-2014_month_25.01.22.mat
+load rivers_data_month/pr_volga_1980-2014_month_22.05.22.mat
+
+% load rivers_data_month/mrro_volga_2015-2100_month_25.01.22.mat
+load rivers_data_month/mrro_volga_1980-2014_month_22.05.22.mat
 load rivers_data_month/mrro_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/mrro_volga_1979-2014_month_25.01.22.mat
+
 load rivers_data_month/mrros_volga_2015-2100_month_25.01.22.mat
-load rivers_data_month/mrros_volga_1979-2014_month_25.01.22.mat
+load rivers_data_month/mrros_volga_1980-2014_month_22.05.22.mat
 
 %%
 list_of_models_126 = list_of_models_126';
@@ -739,7 +744,7 @@ hold on
 plot(pdo_hist(1,:)/max(pdo_hist(1,:)));
 %%
 [a,b] = my_lin_reg(nao_hist_cut(1,:), P_hist_m(1,:));
-ttt = linspace(1979, 2014, 432);
+ttt = linspace(1980, 2014, 420);
 
 plot(ttt, nao_hist_cut);
 hold on
