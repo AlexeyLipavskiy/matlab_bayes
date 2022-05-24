@@ -751,6 +751,51 @@ hold on
 plot(ttt, nao_hist_cut(1,:),'LineWidth',3,'Color','k')
 figure;
 plot(ttt, P_hist_m);
+%% std calc
+len_tmp = 344;
+for i = 1:3
+    for j = 1 : size(P_126_ssp_f(1,:))
+        P_std_orig_126(j,i) = std(P_126_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_orig_126(j,i) = std(R_126_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        
+        P_std_orig_245(j,i) = std(P_245_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_orig_245(j,i) = std(R_245_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        
+        P_std_orig_585(j,i) = std(P_585_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_orig_585(j,i) = std(R_585_ssp_f(j,(i-1)*len_tmp+1:i*len_tmp));
+        
+        P_std_eof_126(j,i) = std(P_126_21_m(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_eof_126(j,i) = std(R_126_21_m(j,(i-1)*len_tmp+1:i*len_tmp));
+        
+        P_std_eof_245(j,i) = std(P_245_21_m(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_eof_245(j,i) = std(R_245_21_m(j,(i-1)*len_tmp+1:i*len_tmp));
+        
+        P_std_eof_585(j,i) = std(P_585_21_m(j,(i-1)*len_tmp+1:i*len_tmp));
+        R_std_eof_585(j,i) = std(R_585_21_m(j,(i-1)*len_tmp+1:i*len_tmp));    
+        
+    end
+    
+end
+%% relative std
+
+P_rel_std_126 = (1 - P_std_orig_126./P_std_eof_126)*100;
+R_rel_std_126 = (1 - R_std_orig_126./R_std_eof_126)*100;
+
+P_rel_std_245 = (1 - P_std_orig_245./P_std_eof_245)*100;
+R_rel_std_245 = (1 - R_std_orig_245./R_std_eof_245)*100;
+
+P_rel_std_585 = (1 - P_std_orig_585./P_std_eof_585)*100;
+R_rel_std_585 = (1 - R_std_orig_585./R_std_eof_585)*100;
+
+%%
+decs = 1:3;
+hold on
+plot(decs, P_rel_std_126,'LineWidth',3);
+plot(decs, R_rel_std_126,'LineWidth',3);
+plot(decs, P_rel_std_245,'LineWidth',3);
+plot(decs, R_rel_std_245,'LineWidth',3);
+plot(decs, P_rel_std_585,'LineWidth',3);
+plot(decs, R_rel_std_585,'LineWidth',3);
 
 
 %%

@@ -298,15 +298,45 @@ a = ncinfo('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
 % disp('pr observed data (GPCP 2.3) done');
 
 
+%%
+clear all
+close all
+clc
+%%
+
+load index.mat
+%%
+% ind_t_tmp = sst_t(1309:1740);
+% R_des = deseason(R_hist_m(1,:), ind_t_tmp);
+
+ind_cut = ind(349:780,:)';
+
+%%
+R_y = month_to_year_data(R_hist_m);
+ind_y = month_to_year_data(ind_cut);
 
 
 
+%%
+[cor,p_val] = corr(R_hist_m(1:12,:)',ind_cut');
+[cor_1,p_val_1] = corr(R_y',ind_y');
+cor2 = corrcoef(R_hist_m(1,:),ind_cut(3,:));
+cor_test = corr(ind_cut, ind_cut);
 
+%%
 
-
-
-
-
+[1 "North Atlantic Oscillation (NAO)";
+ 2   "East Atlantic (EA)";
+ 3   "West Pacific (WP)";
+ 4   "East Pacific-North Pacific (EP-NP)";
+ 5   "Pacific/North American (PNA)";
+ 6   "East Atlantic/Western Russia";
+ 7   "Scandinavia (SCAND)";
+ 8   "Tropical/Northern Hemisphere (TNH)";
+ 9   "Polar/Eurasia";
+ 10   "Pacific Transition (PT)";
+ 11   "Pacific Decadal Oscillation (PDO)";
+ 12   "Oceanic Niño Index (ONI)"]
 
 
 
@@ -362,4 +392,28 @@ int_obj = griddedInterpolant(lon_cmip6,lat_cmip6,var_month_cut(:,:));           
 var_month_cut_int(:,:) = int_obj(lon_my_mesh,lat_my_mesh);                                        % cutted part interpolated on my new mesh
 var_month_cut_int = var_month_cut_int .* f_k_flipped' .* s_k';                                  % flow in the mask
 var_month_sum = sum(var_month_cut_int,'all')*days_a_month(month_ind)*sec_in_day;                % summ of flow for a month
+end
+
+
+function[output] = month_to_year_data(mon_data)
+    if size(mon_data,1) > size(mon_data,2)
+        mon_data = mon_data';
+    end
+    n_of_models = size(mon_data, 1);
+    output = zeros(n_of_models, ceil(size(mon_data, 2)/12));
+    year_data_tmp = zeros(n_of_models, 1);
+    year_ind = 1;
+    month_count = 1;
+    
+    for i = 1: size(mon_data,2)
+
+                year_data_tmp = year_data_tmp + mon_data(:, i);                 % summ of flow for a year
+                if mod(month_count,12) == 0                                % when year is full:
+                    output(:, year_ind) = year_data_tmp;                     % get result
+                    year_data_tmp = zeros(n_of_models, 1);
+                    year_ind = year_ind +1;
+    %                 month_ind = 1;
+                end 
+                month_count = month_count +1;
+    end
 end
