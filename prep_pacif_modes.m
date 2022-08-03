@@ -355,7 +355,8 @@ mask_na = logical(mask1);
 %%
 psl_ds_masked = zeros(size(psl));
 for v = 1:size(psl,3)
-    psl_ds_masked(:,:,v) = psl_ds_dt(:,:,v).*mask1;
+%     psl_ds_masked(:,:,v) = psl_ds_dt(:,:,v).*mask1;
+    psl_ds_masked(:,:,v) = psl(:,:,v).*mask1;
 end
 %%
 imagesc(lon_from_file, lat_from_file, psl_ds_masked(:,:,2)')
@@ -371,7 +372,7 @@ ind_cut = ind(361:780,:);
 
 %%
 [cor,p_val] = corr(pc_masked_tmp',ind_cut);
-cor2 = corrcoef(pc_masked_tmp(1,:)',ind_cut(:,1));
+cor2 = corrcoef(pc_masked_tmp(2,:)',ind_cut(:,1));
 cor_test = corr(ind_cut, ind_cut);
 
 %%
