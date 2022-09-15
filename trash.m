@@ -255,7 +255,7 @@
 %%
 % clear all;
 % %%
-a = ncinfo('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
+a = ncinfo('../Merra_2_data/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
 % 
 % b = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','SLP');
 % lat = ncread('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4','lat');
@@ -296,6 +296,37 @@ a = ncinfo('../Merra2/MERRA2_100.instM_2d_asm_Nx.198001.nc4');
 % end
 % % overall units are mm/year
 % disp('pr observed data (GPCP 2.3) done');
+%%
+% clc
+% path = '/home/alex/Downloads/Merra_1/MERRA2_100.instM_2d_lfo_Nx.198001.nc4';
+% path = '/home/alex/Downloads/Merra_2/MERRA2_100.instU_3d_ana_Np.198001.nc4';
+% path = '/home/alex/Downloads/Merra_3/MERRA2_100.instU_2d_lfo_Nx.198001.nc4';
+% path = '/home/alex/Downloads/Merra_4/MERRA2_100.instM_3d_asm_Np.198001.nc4';
+% path = '/home/alex/Downloads/Merra_5/MERRA2_100.instU_3d_asm_Np.198001.nc4';
+% path = '/home/alex/Downloads/Merra_6/MERRA2_100.tavgM_2d_slv_Nx.198001.nc4';
+% path = '/home/alex/Downloads/Merra_7/MERRA2_100.tavgU_2d_slv_Nx.198001.nc4';
+path = '../Merra_2_data/MERRA2_100.instM_3d_ana_Np.198001.nc4';
+% path = '/home/alex/Downloads/Merra_9/MERRA2.tavgC_3d_ltm_Np.198101_201001.nc4';
+
+
+
+ncdisp(path);
+%%
+aa = ncread(path, 'lev');
+bb = ncread(path, 'lon');
+cc = ncread(path, 'lat');
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 %%

@@ -147,6 +147,68 @@ lon_mask = lon_full;
 save rivers_data_year/nor-20_atlan_mask_0.5_shift.mat ...
     f_k_north_atlantic s_k_north_atlantic lon_mask lat_mask
 
+%% SCA for Merra2
+
+
+path = '../Merra_2_data/MERRA2_100.instM_3d_ana_Np.198001.nc4';
+h = ncread(path, 'H');
+gh = h(:,:,1);
+lon_merra = ncread(path, 'lon');
+lat_merra = ncread(path, 'lat');
+
+%%
+imagesc(lon_merra,lat_merra, gh');
+borders
+set(gca,'YDir','normal');
+%%
+
+mask = zeros(576, 361);
+mask(358:529, 221:356) = ones(172, 136);
+%%
+imagesc(lon_merra,lat_merra, (gh.*mask)');
+borders
+set(gca,'YDir','normal');
+%%
+sca_mask = mask;
+%%
+save rivers_data_year/SCA_mask.mat ...
+    sca_mask
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

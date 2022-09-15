@@ -14,9 +14,16 @@ path_dest = '../CMIP_6/';
 
 
 %%
+list_of_ = ls(path_raw);
+list_of_files_raw = split(list_of_);
 
-list_of_files_raw = ls(path_raw);
-list_of_files_raw = list_of_files_raw(3:end,:);
+
+%% Windows:
+% list_of_files_raw = ls(path_raw);
+
+
+
+% list_of_files_raw = list_of_files_raw(3:end,:);
 % list_of_folders = ls(path_dest);
 % list_of_folders = list_of_folders(3:end,:);
 
@@ -30,7 +37,7 @@ f = waitbar(0,'Please wait...');
 
 
 for count = 1:n_of_files
-    name_split = strsplit(list_of_files_raw(count,:),'_');
+    name_split = strsplit(string(list_of_files_raw(count,:)),'_');
     exp_name = string(name_split(4));
     if name_split(2) ~= "day"
         path_exp = path_dest+exp_name;
