@@ -12,8 +12,8 @@ global path_to_folder years mask_int_obj
 years = 2015:2100;
 
 
-variable_name = 'H';
-path_to_folder = '../Merra_2_data/';
+variable_name = 'zg';
+path_to_folder = '../CMIP_6/';
 
 exel_list_name = 'list+slp+tas.xls';
 save_flag = false;
@@ -27,18 +27,18 @@ save_flag = false;
 % load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
 load rivers_data_year/SCA_mask.mat
 %%
-imagesc(lon_mask,lat_mask, sca_mask');
-borders
-set(gca,'YDir','normal');
+% imagesc(lon_mask,lat_mask, sca_mask');
+% borders
+% set(gca,'YDir','normal');
 
 % imagesc(lon_mask,lat_mask, f_k_north_pacific');
 % borders
 % set(gca,'YDir','normal');
 %%
-% [lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
+[lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
 % % mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_pacific);
 % mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_north_atlantic);
-mask_int_obj = sca_mask;
+mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_sca); 
 
 %% CMIP_6
 
@@ -47,112 +47,120 @@ mask_int_obj = sca_mask;
 list_tmp_file = readcell(exel_list_name);
 list_tmp_file = list_tmp_file(3:end,:);
 
-% list_hist_models = list_tmp_file(:,1);
-% list_hist_marks = list_tmp_file(:,2);
-% 
-% list_ssp126_models = list_tmp_file(:,13);
-% list_ssp126_marks = list_tmp_file(:,14);
-% 
-% list_ssp245_models = list_tmp_file(:,7);
-% list_ssp245_marks = list_tmp_file(:,8);
-% 
-% list_ssp585_models = list_tmp_file(:,10);
-% list_ssp585_marks = list_tmp_file(:,11);
-
-%% preallocation
-% var_126 = zeros();
-
-
-%%
-% years = 2015:2100;
-% % %     SSP_126
-% list_ssp126_models = list_tmp_file(:,7);
-% list_ssp126_marks = list_tmp_file(:,8);
-% [list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
-% 
-% % %     SSP_245
-% list_ssp245_models = list_tmp_file(:,7);
-% list_ssp245_marks = list_tmp_file(:,8);
-% [list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
-% 
-% %%     SSP_585
-% list_ssp585_models = list_tmp_file(:,10);
-% list_ssp585_marks = list_tmp_file(:,11);
-% [list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
-% 
-% %%
-% years_ssp = years;
-% nao_126_21 = var_126;
-% nao_245_21 = var_245;
-% nao_585_21 = var_585;
-% %% modification of nao
-% 
-% 
-% nao_126_21_cut = nao_126_21;
-% nao_245_21_cut = nao_245_21;
-% nao_585_21_cut = nao_585_21;
-% 
-% 
-% nao_126_21_cut(:,ind_to_cut) = 0;
-% nao_245_21_cut(:,ind_to_cut) = 0;
-% nao_585_21_cut(:,ind_to_cut) = 0;
-% 
-% 
-% %%
-% % save_flag = true;
-% if save_flag == true
-%     save("rivers_data_month\"+"nao_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_ssp','nao_126_21_cut'...
-%     ,'list_of_models_126','nao_245_21_cut','list_of_models_245','nao_585_21_cut','list_of_models_585');
-% end
-
-
-%%     hist
-years = 1979:2014;
-
 list_hist_models = list_tmp_file(:,1);
 list_hist_marks = list_tmp_file(:,2);
-[list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
-%%
-years_hist = years;
-% pdo_hist = pc_pdo_cut;    КОСТЫЛЬ
-% pdo_hist(2:19,:) = var_hist;
 
+list_ssp126_models = list_tmp_file(:,13);
+list_ssp126_marks = list_tmp_file(:,14);
 
+list_ssp245_models = list_tmp_file(:,7);
+list_ssp245_marks = list_tmp_file(:,8);
 
-load index.mat
-nao_hist = nao(349:780)';
-nao_hist(2:19,:) = var_hist;
+list_ssp585_models = list_tmp_file(:,10);
+list_ssp585_marks = list_tmp_file(:,11);
 
-%% modification of nao
-%using only 1,2,3,12 months
-inds = 4:11;
+%% inds to cut
+% if we need DJF-mean (for example) 
+%using only 1,2,12 months
+inds = 3:11;
 for n = 1:numel(years)
     ind_to_cut((n-1)*numel(inds) + 1 : n*numel(inds)) = inds + (n-1)*12;
     
 end
-%%
-nao_hist_cut = nao_hist;
-nao_hist_cut(:,ind_to_cut) = 0;
-plot(nao_hist_cut(1,:))
-hold on;
-plot(nao_hist(1,:))
 
+
+%%
+years = 2015:2100;
+% %     SSP_126
+list_ssp126_models = list_tmp_file(:,7);
+list_ssp126_marks = list_tmp_file(:,8);
+[list_of_models_126, var_126] = calc_var(list_ssp126_models, list_ssp126_marks, '/ssp126/', variable_name);
+
+% %     SSP_245
+list_ssp245_models = list_tmp_file(:,7);
+list_ssp245_marks = list_tmp_file(:,8);
+[list_of_models_245, var_245] = calc_var(list_ssp245_models, list_ssp245_marks, '/ssp245/', variable_name);
+
+%%     SSP_585
+list_ssp585_models = list_tmp_file(:,10);
+list_ssp585_marks = list_tmp_file(:,11);
+[list_of_models_585, var_585] = calc_var(list_ssp585_models, list_ssp585_marks, '/ssp585/', variable_name); 
+
+%%
+years_ssp = years;
+sca_126_21 = var_126;
+sca_245_21 = var_245;
+sca_585_21 = var_585;
+%% modification of nao
+
+
+sca_126_21_cut = sca_126_21;
+sca_245_21_cut = sca_245_21;
+sca_585_21_cut = sca_585_21;
+
+
+sca_126_21_cut(:,ind_to_cut) = 0;
+sca_245_21_cut(:,ind_to_cut) = 0;
+sca_585_21_cut(:,ind_to_cut) = 0;
 
 
 %%
 % save_flag = true;
 if save_flag == true
-    save("rivers_data_month\"+"nao("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_hist','nao_hist'...
-    ,'list_of_models_hist');
+    save("rivers_data_month/"+"sca_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_20.09.22.mat",'years_ssp','sca_126_21_cut'...
+    ,'list_of_models_126','sca_245_21_cut','list_of_models_245','sca_585_21_cut','list_of_models_585');
 end
-disp("-----------------------DONE --------------------------------------");
-%%
 
 if save_flag == true
-    save("rivers_data_month\"+"nao_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_18.04.22.mat",'years_hist','nao_hist_cut'...
-    ,'list_of_models_hist');
+    save("rivers_data_month/"+"sca("+variable_name+")_"+years(1)+"-"+years(end)+"_month_20.09.22.mat",'years_ssp','sca_126_21'...
+    ,'list_of_models_126','sca_245_21','list_of_models_245','sca_585_21','list_of_models_585');
 end
 
+disp("------SSP DONE---------------------------------------------------------");
+%%     hist
+% years = 1979:2014;
+% 
+% list_hist_models = list_tmp_file(:,1);
+% list_hist_marks = list_tmp_file(:,2);
+% [list_of_models_hist, var_hist] = calc_var(list_hist_models, list_hist_marks, '/historical/', variable_name); 
+% %%
+% years_hist = years;
+% % pdo_hist = pc_pdo_cut;    КОСТЫЛЬ
+% % pdo_hist(2:19,:) = var_hist;
+% 
+% 
+% 
+% load index.mat
+% nao_hist = sca(349:780)';
+% nao_hist(2:19,:) = var_hist;
+% 
+% %% modification of nao
+% 
+% nao_hist_cut = nao_hist;
+% nao_hist_cut(:,ind_to_cut) = 0;
+% plot(nao_hist_cut(1,:))
+% hold on;
+% plot(nao_hist(1,:))
+% %%
+% 
+% sca_hist = nao_hist;
+% sca_hist_cut = nao_hist_cut;
+% 
+% 
+% %%
+% % save_flag = true;
+% if save_flag == true
+%     save("rivers_data_month/"+"sca("+variable_name+")_"+years(1)+"-"+years(end)+"_month_20.09.22.mat",'years_hist','sca_hist'...
+%     ,'list_of_models_hist');
+% end
+% disp("-----------------------DONE --------------------------------------");
+% %%
+% 
+% if save_flag == true
+%     save("rivers_data_month/"+"sca_cut("+variable_name+")_"+years(1)+"-"+years(end)+"_month_20.09.22.mat",'years_hist','sca_hist_cut'...
+%     ,'list_of_models_hist');
+% end
+% 
 
 
 
@@ -217,8 +225,11 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
         count_of_files = count_of_files + 1;
 %         disp(list_of_files_tmp(iterator_pre,:));
         path_tmp = fullfile(path,list_of_files_tmp(iterator_pre).name); % full path to matched file
-        var_tmp = ncread(path_tmp,var);                                                          % read cmip6 file
-      
+        var_tmp_4d = ncread(path_tmp,var);                                                          % read cmip6 file
+        var_tmp_4d_shift = permute(var_tmp_4d, [1 2 4 3]);
+        
+        
+        var_tmp = var_tmp_4d_shift(:,:,:,8);
 
         if count_of_files == 1 % getting years 
             year_start = file_year_start;

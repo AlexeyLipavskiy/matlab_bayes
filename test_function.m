@@ -1,15 +1,16 @@
 % clc
 % clear all
 %%
-% path = '..\CMIP_6\ssp585\ACCESS-CM2';
-path = '../Raw/';
-var = 'sst';
+path = '../Merra_2_data';
+% path = '../Raw/';
+var = 'H';
 %%
 global years  f_k_north_pacific
-load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
+% load rivers_data_year/nor-20_pacif_mask_0.5_shift.mat
+% load rivers_data_year/SCA_mask.mat
 % years = 2015:2100;
 years = 1979:2014;
-%%
+%% MERRA2_100.instM_3d_ana_Np.198001.nc4
 
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует

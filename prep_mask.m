@@ -169,10 +169,13 @@ imagesc(lon_merra,lat_merra, (gh.*mask)');
 borders
 set(gca,'YDir','normal');
 %%
-sca_mask = mask;
+f_k_sca = mask;
+lon_mask = lon_merra;
+lat_mask = lat_merra;
+
 %%
 save rivers_data_year/SCA_mask.mat ...
-    sca_mask
+    f_k_sca lon_mask lat_mask
 
 
 
