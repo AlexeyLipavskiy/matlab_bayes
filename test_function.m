@@ -1,6 +1,132 @@
-% clc
+%%
+
+clear all
+close all
+clc
+%%
+years = 1980:2014;
+var = 'H';
+
+path_to_merra_folder = '../Merra_2_data';
+
+year_counter = 0;
+merra_h_tmp_full = zeros(576,361,42);
+merra_h_tmp = zeros(576,361);
+
+merra_h_300_hpa = zeros(576,361,12*size(years,2));
+
+
+list_of_files_tmp = ls(path_to_merra_folder);
+list_of_files_tmp = split(list_of_files_tmp); 
+list_of_files_tmp = sort(list_of_files_tmp);
+list_of_files_tmp(1) = [];
+%%
+for year_ind_mrros = years
+%     ls_tmp = dir(fullfile(path_to_gpcp_folder,num2str(year_ind_mrros)));
+    
+    for month_ind = 1 : 12   
+        month_num = year_counter*12 + month_ind;
+        
+        path_merra_tmp = fullfile(path_to_merra_folder,string(list_of_files_tmp(month_num)));
+        merra_h_tmp_full(:,:,:) = ncread(path_merra_tmp,var);
+        merra_h_tmp = merra_h_tmp_full(:,:,21);
+        merra_h_300_hpa(:,:,month_num) = merra_h_tmp;
+        
+        lat_from_file = ncread(path_merra_tmp,'lat');
+        lon_from_file = ncread(path_merra_tmp,'lon');
+%         [lon_gpcp,lat_gpcp,lon_ind_gpcp,lat_ind_gpcp] = find_cut_points(lon_from_file,lat_from_file);       % different files have diff mesh
+%  
+%         gpcp_p_month_sum(12*year_counter + month_ind) = cut_and_interpolate(gpcp_p_tmp,...
+%             lon_ind_gpcp,lat_ind_gpcp,lon_gpcp,lat_gpcp,month_ind)/sec_in_day/mask_square;
+
+        
+    end
+    year_counter = year_counter + 1;
+end
+%%
+load rivers_data_year/SCA_mask.mat
+[lon_mask_grid,lat_mask_grid] = ndgrid(lon_mask,lat_mask); 
+mask_int_obj = griddedInterpolant(lon_mask_grid, lat_mask_grid, f_k_sca); 
+[lon_var_grid,lat_var_grid] = ndgrid(lon_from_file,lat_from_file); 
+mask_int(:,:) = mask_int_obj(lon_var_grid,lat_var_grid);
+%%
+for mon = 1:size(merra_h_300_hpa,3)
+    output_2(:,:,mon) = merra_h_300_hpa(:,:,mon).*logical(f_k_sca);
+%     fillmissing( output(:,:,mon),'constant',0);
+end
+%%
+
+% imagesc(lon_mask,lat_mask, (merra_h_300_hpa(:,:,mon).*logical(mask_int))');
+% borders
+% set(gca,'YDir','normal');
+
+% datenum_t = double(time + datenum(years(1),1,0));
+%%
+
+year_counter = 0;
+for year_ind_mrros = years
+    
+    for month_ind = 1 : 12   
+        month_num = year_counter*12 + month_ind;
+        dt(month_num) = datenum(year_ind_mrros,month_ind,0);
+
+    end
+    year_counter = year_counter + 1;
+end
+
+%%
+output_ds = deseason(output_2,dt,'monthly');
+
+output_ds_dt = detrend3(output_ds,dt);
+
+[eof_maps_masked,pc_masked,expv_masked] = eof(output_ds_dt,1);
+%%
+load rivers_data_month/sca(zg)_1979-2014_month_20.09.22.mat
+%%
+years_hist(1) = [];
+sca_hist(:, 1:12) = [];
+
+
+
+
+%%
+plot(sca_hist_cut, dt);
+hold on;
+plot(pc_masked, dt,'LineWidth',3,'Color','k');
+%%
+inds = 3:11;
+for n = 1:numel(years)
+    ind_to_cut((n-1)*numel(inds) + 1 : n*numel(inds)) = inds + (n-1)*12;
+    
+end
+
+sca_tmp = pc_masked;
+sca_tmp_cut = sca_tmp;
+sca_tmp_cut(ind_to_cut) = 0;
+
+%%
+sca_hist(1,:) = sca_tmp;
+
+%%
+plot(sca_hist_cut, dt);
+
+
+
+%%
+
+save("rivers_data_month/"+"sca(zg)_"+years(1)+"-"+years(end)+"_month_20.09.22.mat",'years_hist','sca_hist'...
+    ,'list_of_models_hist');
+
+%%
+
+% overall units are mm/year
+disp('pr observed data (GPCP 2.3) done');% clc
 % clear all
 %%
+%%
+%%
+%%
+
 path = '../Merra_2_data';
 % path = '../Raw/';
 var = 'H';
@@ -10,7 +136,7 @@ global years  f_k_north_pacific
 % load rivers_data_year/SCA_mask.mat
 % years = 2015:2100;
 years = 1979:2014;
-%% MERRA2_100.instM_3d_ana_Np.198001.nc4
+%% 
 
 %UNTITLED Summary of this function goes here
 % Функция считывает все файлы в папке, на которую указывает путь, фильтрует
@@ -24,28 +150,38 @@ global years mask_int_obj
 %%
 
 % length_of_var = numel(var);
-% list_of_files_tmp = ls(path);
-list_of_files_tmp = dir(path);
+list_of_files_tmp = ls(path);
+list_of_files_tmp = split(list_of_files_tmp); 
+list_of_files_tmp = sort(list_of_files_tmp);
+% list_of_files_tmp = dir(path);
+
+%%
 count_of_files = 0; % counter for suitable files in the folder
 disp(path);% to check in command window
 % var_year_tmp = 0; % temporary year summ
 % year_ind = 1;
 month_ind_for_calc_days = 1;
 month_total_ind = 1;
-for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'empty' values in the begining
+% MERRA2_100.instM_3d_ana_Np.198001.nc4
+for iterator_pre = 2 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'empty' values in the begining
 
-    file_name_split = strsplit(list_of_files_tmp(iterator_pre).name,'_');% split name for blocks
-    file_var = string(file_name_split(1));
-    file_years = char(file_name_split(7));
-    file_year_start = str2double(file_years(1:4));
-    file_year_end = str2double(file_years(8:11));
+    file_name_split = strsplit(string(list_of_files_tmp(iterator_pre)),'_');% split name for blocks
+%     file_var = string(file_name_split(1));
+    file_years = char(file_name_split(5));
+    file_year_start = str2double(file_years(4:7));
+    file_year_end = str2double(file_years(4:7));
     
-    if file_var == var && file_year_end >= years(1) && file_year_start <= years(end)%find files with matching variable and years
+%     file_year_start = str2double(file_years(1:4));
+%     file_year_end = str2double(file_years(8:11));
+    
+    if file_year_end >= years(1) && file_year_start <= years(end)%find files with matching variable and years 
+%     if file_var == var && file_year_end >= years(1) && file_year_start <= years(end)%find files with matching variable and years
 
         count_of_files = count_of_files + 1;
 %         disp(list_of_files_tmp(iterator_pre,:));
-        path_tmp = fullfile(path,list_of_files_tmp(iterator_pre).name); % full path to matched file
-        var_tmp = ncread(path_tmp,var);                                                          % read cmip6 file
+        path_tmp = fullfile(path,string(list_of_files_tmp(iterator_pre))); % full path to matched file
+        var_tmp = ncread(path_tmp,var);   
+        var_tmp = var_tmp(:,:,21);                                                          % read cmip6 file
       
 
         if count_of_files == 1 % getting years 
@@ -74,12 +210,12 @@ for iterator_pre = 3 : size(list_of_files_tmp,1) % start from 3 bc ls give 2 'em
 %             end  
 %         end
 
-        if str2double(file_years(5:6)) ~= 1 || str2double(file_years(12:13)) ~= 12% check for errors
-            disp('Problem with months. File:   ---------------------------------------------------------------------------------------------------'); 
-            disp(list_of_files_tmp(iterator_pre).name);
-            count_of_files = 0;
-            break;
-        end
+%         if str2double(file_years(5:6)) ~= 1 || str2double(file_years(12:13)) ~= 12% check for errors
+%             disp('Problem with months. File:   ---------------------------------------------------------------------------------------------------'); 
+%             disp(list_of_files_tmp(iterator_pre).name);
+%             count_of_files = 0;
+%             break;
+%         end
 %         disp('done');
 %     elseif file_var ~= var
 %         disp('No such variable');
@@ -222,6 +358,80 @@ var_month_cut_int(:,:) = int_obj(lon_my_mesh,lat_my_mesh);                      
 var_month_cut_int = var_month_cut_int .* f_k_flipped' .* s_k';                                  % flow in the mask
 var_month_sum = sum(var_month_cut_int,'all')*days_a_month(month_ind)*sec_in_day;                % summ of flow for a month
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
